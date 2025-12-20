@@ -6,7 +6,7 @@ import { useHaloRemoval } from '@/hooks/useHaloRemoval';
 import { previewHaloRemoval, analyzeHaloImpact } from '@/lib/processing/haloRemoval';
 import Slider from '@/components/ui/Slider';
 import Button from '@/components/ui/Button';
-import CanvasPreview from '@/components/ui/CanvasPreview';
+import CanvasPreview, { BackgroundType } from '@/components/ui/CanvasPreview';
 
 export default function Step6HaloRemover() {
   const frames = useStore((state) => state.frames);
@@ -20,6 +20,7 @@ export default function Step6HaloRemover() {
 
   const [previewFrame, setPreviewFrame] = useState<ImageData | null>(null);
   const [processedPreview, setProcessedPreview] = useState<ImageData | null>(null);
+  const [previewBackground, setPreviewBackground] = useState<BackgroundType>('checkerboard');
   const [haloImpact, setHaloImpact] = useState<{
     edgePixels: number;
     totalOpaquePixels: number;
@@ -134,13 +135,52 @@ export default function Step6HaloRemover() {
 
       {/* Preview */}
       <div className="space-y-3">
-        <p className="text-sm font-medium text-foreground text-center">Preview</p>
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium text-foreground">Preview</p>
+          {/* Background Toggle */}
+          <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
+            <button
+              onClick={() => setPreviewBackground('checkerboard')}
+              className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                previewBackground === 'checkerboard'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'hover:bg-secondary/80'
+              }`}
+              title="Checkerboard background"
+            >
+              ▦
+            </button>
+            <button
+              onClick={() => setPreviewBackground('dark')}
+              className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                previewBackground === 'dark'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'hover:bg-secondary/80'
+              }`}
+              title="Dark background"
+            >
+              ◼
+            </button>
+            <button
+              onClick={() => setPreviewBackground('light')}
+              className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                previewBackground === 'light'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'hover:bg-secondary/80'
+              }`}
+              title="Light background"
+            >
+              ◻
+            </button>
+          </div>
+        </div>
         <div className="grid grid-cols-2 gap-6">
           <CanvasPreview
             imageData={previewFrame}
             width={250}
             height={250}
             showGrid={true}
+            backgroundColor={previewBackground}
             label="Before"
           />
           <CanvasPreview
@@ -148,6 +188,7 @@ export default function Step6HaloRemover() {
             width={250}
             height={250}
             showGrid={true}
+            backgroundColor={previewBackground}
             label="After"
           />
         </div>

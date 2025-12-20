@@ -2,11 +2,14 @@
 
 import { useEffect, useRef } from 'react';
 
+export type BackgroundType = 'checkerboard' | 'dark' | 'light';
+
 interface CanvasPreviewProps {
   imageData: ImageData | null;
   width?: number;
   height?: number;
   showGrid?: boolean;
+  backgroundColor?: BackgroundType;
   label?: string;
 }
 
@@ -15,6 +18,7 @@ export default function CanvasPreview({
   width = 256,
   height = 256,
   showGrid = true,
+  backgroundColor = 'checkerboard',
   label,
 }: CanvasPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -29,9 +33,9 @@ export default function CanvasPreview({
     // Clear canvas
     ctx.clearRect(0, 0, width, height);
 
-    // Draw checkerboard background (to show transparency)
-    if (showGrid) {
-      drawCheckerboard(ctx, width, height);
+    // Draw background based on type
+    if (showGrid || backgroundColor !== 'checkerboard') {
+      drawBackground(ctx, width, height, backgroundColor);
     }
 
     // Calculate scaling to fit imageData in canvas while preserving aspect ratio
@@ -58,7 +62,7 @@ export default function CanvasPreview({
 
     // Draw scaled image
     ctx.drawImage(tempCanvas, x, y, scaledWidth, scaledHeight);
-  }, [imageData, width, height, showGrid]);
+  }, [imageData, width, height, showGrid, backgroundColor]);
 
   return (
     <div className="space-y-2">
@@ -84,22 +88,32 @@ export default function CanvasPreview({
 }
 
 /**
- * Draw a checkerboard pattern to show transparency
+ * Draw background based on type
  */
-function drawCheckerboard(
+function drawBackground(
   ctx: CanvasRenderingContext2D,
   width: number,
-  height: number
+  height: number,
+  type: BackgroundType
 ) {
-  const squareSize = 16;
-  const lightColor = '#ffffff';
-  const darkColor = '#e0e0e0';
+  if (type === 'dark') {
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(0, 0, width, height);
+  } else if (type === 'light') {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+  } else {
+    // Checkerboard
+    const squareSize = 16;
+    const lightColor = '#ffffff';
+    const darkColor = '#e0e0e0';
 
-  for (let y = 0; y < height; y += squareSize) {
-    for (let x = 0; x < width; x += squareSize) {
-      const isLight = ((x / squareSize) % 2 === 0) !== ((y / squareSize) % 2 === 0);
-      ctx.fillStyle = isLight ? lightColor : darkColor;
-      ctx.fillRect(x, y, squareSize, squareSize);
+    for (let y = 0; y < height; y += squareSize) {
+      for (let x = 0; x < width; x += squareSize) {
+        const isLight = ((x / squareSize) % 2 === 0) !== ((y / squareSize) % 2 === 0);
+        ctx.fillStyle = isLight ? lightColor : darkColor;
+        ctx.fillRect(x, y, squareSize, squareSize);
+      }
     }
   }
 }
