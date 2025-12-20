@@ -17,22 +17,24 @@ const nextConfig = {
 
     return config;
   },
-  // Required for ffmpeg.wasm
-  headers: async () => [
-    {
-      source: '/:path*',
-      headers: [
-        {
-          key: 'Cross-Origin-Embedder-Policy',
-          value: 'require-corp',
-        },
-        {
-          key: 'Cross-Origin-Opener-Policy',
-          value: 'same-origin',
-        },
-      ],
-    },
-  ],
+  // Required for ffmpeg.wasm - SharedArrayBuffer support
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp',
+          },
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

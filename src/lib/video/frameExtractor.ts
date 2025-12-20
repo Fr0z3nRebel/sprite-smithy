@@ -1,5 +1,3 @@
-import { extractFrames as extractFramesFFmpeg } from './decoder';
-
 export interface FrameExtractionOptions {
   file: File;
   startFrame: number;
@@ -9,7 +7,33 @@ export interface FrameExtractionOptions {
 }
 
 /**
- * Extract frames from video
+ * Extract a single frame at a specific time using Canvas API
+ */
+function extractFrameAtTime(
+  video: HTMLVideoElement,
+  time: number,
+  canvas: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D
+): Promise<ImageData> {
+  return new Promise((resolve, reject) => {
+    const onSeeked = () => {
+      video.removeEventListener('seeked', onSeeked);
+      try {
+        ctx.drawImage(video, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        resolve(imageData);
+      } catch (error) {
+        reject(error);
+      }
+    };
+
+    video.addEventListener('seeked', onSeeked);
+    video.currentTime = time;
+  });
+}
+
+/**
+ * Extract frames from video using Canvas API (browser-native, no FFmpeg needed)
  */
 export async function extractFrames(
   options: FrameExtractionOptions
@@ -28,15 +52,53 @@ export async function extractFrames(
     );
   }
 
-  // Extract using FFmpeg
+  // Create video element
+  const video = document.createElement('video');
+  video.muted = true;
+  video.playsInline = true;
+  
+  const videoURL = URL.createObjectURL(file);
+
   try {
-    const frames = await extractFramesFFmpeg(
-      file,
-      startFrame,
-      endFrame,
-      fps,
-      onProgress
-    );
+    // Load video metadata
+    await new Promise<void>((resolve, reject) => {
+      video.onloadedmetadata = () => resolve();
+      video.onerror = () => reject(new Error('Failed to load video'));
+      video.src = videoURL;
+    });
+
+    // Create canvas for frame extraction
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) {
+      throw new Error('Failed to create canvas context');
+    }
+
+    // Extract frames
+    const frames: ImageData[] = [];
+    const frameDuration = 1 / fps;
+
+    for (let i = 0; i < frameCount; i++) {
+      const frameIndex = startFrame + i;
+      const time = frameIndex * frameDuration;
+
+      try {
+        const imageData = await extractFrameAtTime(video, time, canvas, ctx);
+        frames.push(imageData);
+      } catch (error) {
+        console.warn(`Failed to extract frame ${frameIndex}:`, error);
+        // Continue with other frames
+      }
+
+      // Update progress
+      if (onProgress) {
+        const progress = Math.round(((i + 1) / frameCount) * 100);
+        onProgress(progress);
+      }
+    }
 
     if (frames.length === 0) {
       throw new Error('No frames extracted');
@@ -47,6 +109,10 @@ export async function extractFrames(
     throw new Error(
       `Frame extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
+  } finally {
+    // Clean up
+    URL.revokeObjectURL(videoURL);
+    video.src = '';
   }
 }
 
