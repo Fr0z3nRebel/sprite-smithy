@@ -1,0 +1,65 @@
+import { StateCreator } from 'zustand';
+import { VideoState, LoopSelection } from '@/types/video';
+
+export interface VideoSlice {
+  video: VideoState;
+  loop: LoopSelection;
+  setVideoFile: (file: File) => void;
+  setVideoUrl: (url: string) => void;
+  setVideoMetadata: (metadata: VideoState['metadata']) => void;
+  setLoopSelection: (start: number, end: number) => void;
+  setSelectedFrames: (frames: number[]) => void;
+  resetVideo: () => void;
+}
+
+const initialVideoState: VideoState = {
+  file: null,
+  url: null,
+  metadata: null,
+};
+
+const initialLoopSelection: LoopSelection = {
+  startFrame: 0,
+  endFrame: 0,
+  selectedFrames: [],
+};
+
+export const createVideoSlice: StateCreator<VideoSlice> = (set) => ({
+  video: initialVideoState,
+  loop: initialLoopSelection,
+
+  setVideoFile: (file) =>
+    set((state) => ({
+      video: { ...state.video, file, url: URL.createObjectURL(file) },
+    })),
+
+  setVideoUrl: (url) =>
+    set((state) => ({
+      video: { ...state.video, url },
+    })),
+
+  setVideoMetadata: (metadata) =>
+    set((state) => ({
+      video: { ...state.video, metadata },
+      loop: {
+        ...state.loop,
+        endFrame: metadata?.totalFrames || 0,
+      },
+    })),
+
+  setLoopSelection: (start, end) =>
+    set((state) => ({
+      loop: { ...state.loop, startFrame: start, endFrame: end },
+    })),
+
+  setSelectedFrames: (frames) =>
+    set((state) => ({
+      loop: { ...state.loop, selectedFrames: frames },
+    })),
+
+  resetVideo: () =>
+    set({
+      video: initialVideoState,
+      loop: initialLoopSelection,
+    }),
+});
