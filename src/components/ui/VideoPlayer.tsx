@@ -16,6 +16,7 @@ export default function VideoPlayer({
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [videoCurrentTime, setVideoCurrentTime] = useState(0);
 
   const videoUrl = useStore((state) => state.video.url);
   const loop = useStore((state) => state.loop);
@@ -25,13 +26,18 @@ export default function VideoPlayer({
   useEffect(() => {
     if (videoRef.current && currentTime !== undefined) {
       videoRef.current.currentTime = currentTime;
+      setVideoCurrentTime(currentTime);
     }
   }, [currentTime]);
 
   // Handle time updates
   const handleTimeUpdate = () => {
-    if (videoRef.current && onTimeUpdate) {
-      onTimeUpdate(videoRef.current.currentTime);
+    if (videoRef.current) {
+      const time = videoRef.current.currentTime;
+      setVideoCurrentTime(time);
+      if (onTimeUpdate) {
+        onTimeUpdate(time);
+      }
     }
   };
 
@@ -51,10 +57,12 @@ export default function VideoPlayer({
 
     const frameDuration = 1 / metadata.fps;
     const newTime = videoRef.current.currentTime + delta * frameDuration;
-    videoRef.current.currentTime = Math.max(
+    const clampedTime = Math.max(
       0,
       Math.min(newTime, videoRef.current.duration)
     );
+    videoRef.current.currentTime = clampedTime;
+    setVideoCurrentTime(clampedTime);
   };
 
   if (!videoUrl) {
@@ -117,10 +125,10 @@ export default function VideoPlayer({
         </div>
       )}
 
-      {metadata && videoRef.current && (
+      {metadata && (
         <div className="mt-2 text-center text-sm text-muted-foreground">
           Frame:{' '}
-          {Math.floor((videoRef.current.currentTime || 0) * metadata.fps)} /{' '}
+          {Math.floor((videoCurrentTime || 0) * metadata.fps)} /{' '}
           {metadata.totalFrames}
         </div>
       )}
