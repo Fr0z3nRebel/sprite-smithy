@@ -58,10 +58,12 @@ export default function Step7Export() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold text-foreground">Export</h3>
+      <div className="text-center">
+        <h2 className="text-2xl font-semibold text-foreground">
+          Export Sprite Sheet
+        </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Export your sprite sheet and frames
+          Download your sprite sheet and individual frames
         </p>
       </div>
 

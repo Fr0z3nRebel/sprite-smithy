@@ -73,10 +73,10 @@ export default function Step4BackgroundRemoval() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold text-foreground">
+      <div className="text-center">
+        <h2 className="text-2xl font-semibold text-foreground">
           Background Removal
-        </h3>
+        </h2>
         <p className="text-sm text-muted-foreground mt-1">
           Remove background using chroma key
         </p>
@@ -119,19 +119,19 @@ export default function Step4BackgroundRemoval() {
 
       {/* Preview */}
       <div className="space-y-3">
-        <p className="text-sm font-medium text-foreground">Preview</p>
-        <div className="grid grid-cols-2 gap-4">
+        <p className="text-sm font-medium text-foreground text-center">Preview</p>
+        <div className="grid grid-cols-2 gap-6">
           <CanvasPreview
             imageData={previewFrame}
-            width={150}
-            height={150}
+            width={250}
+            height={250}
             showGrid={false}
             label="Before"
           />
           <CanvasPreview
             imageData={processedPreview}
-            width={150}
-            height={150}
+            width={250}
+            height={250}
             showGrid={true}
             label="After"
           />
