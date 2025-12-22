@@ -17,7 +17,7 @@ export function useExport() {
   const frames = useStore((state) => state.frames);
   const settings = useStore((state) => state.settings);
   const exportSettings = useStore((state) => state.exportSettings);
-  const license = useStore((state) => state.license);
+  const tier = useStore((state) => state.tier);
   const video = useStore((state) => state.video);
   const setProcessing = useStore((state) => state.setProcessing);
   const setProgress = useStore((state) => state.setProgress);
@@ -48,7 +48,7 @@ export function useExport() {
       const spriteSheetCanvas = createSpriteSheet(framesToExport, frameSize);
 
       // Apply watermark if free tier
-      if (license.tier === 'free') {
+      if (tier === 'free') {
         await applyWatermarkToSpriteSheet(spriteSheetCanvas);
       }
 
@@ -119,7 +119,7 @@ export function useExport() {
               ctx.putImageData(frame, 0, 0);
 
               // Apply watermark to frame if free tier
-              if (license.tier === 'free') {
+              if (tier === 'free') {
                 const watermarkCtx = canvas.getContext('2d', { willReadFrequently: true });
                 if (watermarkCtx) {
                   const fontSize = Math.max(8, Math.floor(frameSize / 16));
@@ -200,7 +200,7 @@ export function useExport() {
     frames.raw,
     settings,
     exportSettings,
-    license,
+    tier,
     video.metadata,
     setProcessing,
     setProgress,

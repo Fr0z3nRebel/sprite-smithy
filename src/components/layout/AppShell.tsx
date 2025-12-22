@@ -3,6 +3,8 @@
 import LeftPanel from './LeftPanel';
 import CenterPanel from './CenterPanel';
 import RightPanel from './RightPanel';
+import UserMenu from '@/components/auth/UserMenu';
+import TierBadge from '@/components/billing/TierBadge';
 
 export default function AppShell() {
   return (
@@ -14,6 +16,11 @@ export default function AppShell() {
 
       {/* Center Panel - Preview */}
       <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top bar with user menu and tier badge */}
+        <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-background">
+          <TierBadge />
+          <UserMenu />
+        </div>
         <CenterPanel />
       </div>
 

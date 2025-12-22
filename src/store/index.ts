@@ -5,6 +5,8 @@ import { FramesSlice, createFramesSlice } from './framesSlice';
 import { SettingsSlice, createSettingsSlice } from './settingsSlice';
 import { ExportSlice, createExportSlice } from './exportSlice';
 import { LicenseSlice, createLicenseSlice } from './licenseSlice';
+import { AuthSlice, createAuthSlice } from './authSlice';
+import { PurchaseSlice, createPurchaseSlice } from './purchaseSlice';
 
 // UI state slice
 export interface UIState {
@@ -32,6 +34,8 @@ export type AppStore = VideoSlice &
   SettingsSlice &
   ExportSlice &
   LicenseSlice &
+  AuthSlice &
+  PurchaseSlice &
   UIState;
 
 export const useStore = create<AppStore>()(
@@ -49,8 +53,14 @@ export const useStore = create<AppStore>()(
       // Export slice
       ...createExportSlice(set, get, api),
 
-      // License slice
+      // License slice (deprecated, will be removed after migration)
       ...createLicenseSlice(set, get, api),
+
+      // Auth slice
+      ...createAuthSlice(set, get, api),
+
+      // Purchase slice
+      ...createPurchaseSlice(set, get, api),
 
       // UI state
       ...initialUIState,
