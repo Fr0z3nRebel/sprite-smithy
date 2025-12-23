@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useStore } from '@/store';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from './useAuth';
@@ -10,12 +10,24 @@ import { useAuth } from './useAuth';
  */
 export function usePurchase() {
   const { user } = useAuth();
-  const { purchase, tier, isPro, setPurchase, setLoading } = useStore();
-  const supabase = createClient();
+  const { purchase, tier, isPro, isLoading, setPurchase, setLoading } = useStore();
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     if (!user) {
       setPurchase(null);
+      setLoading(false);
+      return;
+    }
+
+    // Don't fetch if purchase already exists for this user
+    if (purchase?.user_id === user.id) {
+      return;
+    }
+
+    // Check store state directly to prevent race conditions from multiple components
+    const storeState = useStore.getState();
+    if (storeState.isLoading || storeState.purchase?.user_id === user.id) {
       return;
     }
 
@@ -30,13 +42,12 @@ export function usePurchase() {
 
       if (!error && data) {
         setPurchase(data);
-      } else {
-        setLoading(false);
       }
+      setLoading(false);
     };
 
     fetchPurchase();
-  }, [user, supabase, setPurchase, setLoading]);
+  }, [user?.id, purchase?.user_id, supabase, setPurchase, setLoading]);
 
   const refreshPurchase = async () => {
     if (!user) return;

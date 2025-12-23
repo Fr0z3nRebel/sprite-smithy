@@ -19,6 +19,17 @@ export function useUser() {
       return;
     }
 
+    // Don't fetch if profile already exists for this user
+    if (profile?.id === user.id) {
+      return;
+    }
+
+    // Check store state directly to prevent race conditions from multiple components
+    const storeState = useStore.getState();
+    if (storeState.profile?.id === user.id) {
+      return;
+    }
+
     // Fetch user profile
     const fetchProfile = async () => {
       const { data, error } = await supabase
@@ -33,7 +44,7 @@ export function useUser() {
     };
 
     fetchProfile();
-  }, [user, supabase, setProfile]);
+  }, [user?.id, profile?.id, supabase, setProfile]);
 
   const updateProfile = async (updates: {
     full_name?: string;
