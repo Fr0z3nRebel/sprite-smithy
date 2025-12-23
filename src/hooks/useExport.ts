@@ -8,11 +8,13 @@ import {
 import { createExportPackage } from '@/lib/export/zipExporter';
 import { generateMetadata, generateReadme } from '@/lib/export/metadataGenerator';
 import { applyWatermarkToSpriteSheet } from '@/lib/export/watermark';
+import { usePurchase } from './usePurchase';
 
 export function useExport() {
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [exportError, setExportError] = useState<string | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const frames = useStore((state) => state.frames);
   const settings = useStore((state) => state.settings);
@@ -22,8 +24,16 @@ export function useExport() {
   const setProcessing = useStore((state) => state.setProcessing);
   const setProgress = useStore((state) => state.setProgress);
   const setError = useStore((state) => state.setError);
+  const usage = useStore((state) => state.usage);
+  const setUsage = useStore((state) => state.setUsage);
+  const setUsageError = useStore((state) => state.setUsageError);
 
-  const handleExport = useCallback(async () => {
+  const { isPro } = usePurchase();
+
+  const hasReachedLimit = usage?.has_reached_limit ?? false;
+
+  // Internal function that performs the actual export
+  const performExport = useCallback(async () => {
     const framesToExport =
       frames.processed.length > 0 ? frames.processed : frames.raw;
 
@@ -185,6 +195,32 @@ export function useExport() {
       setIsExporting(false);
       setProcessing(false);
 
+      // Increment usage for free users after successful export
+      if (!isPro && usage) {
+        try {
+          const response = await fetch('/api/usage/increment', {
+            method: 'POST',
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to increment usage');
+          }
+
+          const data = await response.json();
+
+          // Update store state
+          setUsage({
+            ...usage,
+            video_count: data.video_count,
+            has_reached_limit: data.has_reached_limit,
+          });
+        } catch (error) {
+          console.error('Failed to increment usage:', error);
+          setUsageError(error instanceof Error ? error.message : 'Failed to increment usage');
+          // Don't fail the export, just log the error
+        }
+      }
+
       return true;
     } catch (error) {
       const errorMessage =
@@ -205,10 +241,47 @@ export function useExport() {
     setProcessing,
     setProgress,
     setError,
+    isPro,
+    usage,
+    setUsage,
+    setUsageError,
   ]);
 
+  // Function to initiate export (called by UI)
+  const initiateExport = useCallback(async () => {
+    // Check if free user has reached limit
+    if (!isPro && hasReachedLimit) {
+      setExportError('You have reached your monthly export limit. Please upgrade to Pro.');
+      return false;
+    }
+
+    // Show confirmation modal for free users
+    if (!isPro) {
+      setShowConfirmModal(true);
+      return false; // Don't export yet, wait for confirmation
+    }
+
+    // Pro users can export directly
+    return await performExport();
+  }, [isPro, hasReachedLimit, performExport]);
+
+  // Function called when user confirms in modal
+  const confirmExport = useCallback(async () => {
+    setShowConfirmModal(false);
+    return await performExport();
+  }, [performExport]);
+
+  // Function called when user cancels
+  const cancelExport = useCallback(() => {
+    setShowConfirmModal(false);
+  }, []);
+
   return {
-    handleExport,
+    initiateExport,
+    confirmExport,
+    cancelExport,
+    showConfirmModal,
+    usage,
     isExporting,
     exportProgress,
     exportError,

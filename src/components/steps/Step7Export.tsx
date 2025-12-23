@@ -5,6 +5,7 @@ import { useStore } from '@/store';
 import { useExport } from '@/hooks/useExport';
 import { createSpriteSheetPreview } from '@/lib/export/spriteSheet';
 import Button from '@/components/ui/Button';
+import ExportConfirmationModal from '@/components/export/ExportConfirmationModal';
 
 export default function Step7Export() {
   const frames = useStore((state) => state.frames);
@@ -15,7 +16,15 @@ export default function Step7Export() {
   const isProcessing = useStore((state) => state.isProcessing);
   const progress = useStore((state) => state.progress);
 
-  const { handleExport, isExporting, exportError } = useExport();
+  const {
+    initiateExport,
+    confirmExport,
+    cancelExport,
+    showConfirmModal,
+    usage,
+    isExporting,
+    exportError,
+  } = useExport();
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -231,13 +240,23 @@ export default function Step7Export() {
 
       {/* Export Button */}
       <Button
-        onClick={handleExport}
+        onClick={initiateExport}
         disabled={isExporting || isProcessing}
         className="w-full"
         size="lg"
       >
         {isExporting ? 'Exporting...' : 'Export Sprite Sheet'}
       </Button>
+
+      {/* Confirmation Modal - only for free users */}
+      {showConfirmModal && usage && (
+        <ExportConfirmationModal
+          isOpen={showConfirmModal}
+          onConfirm={confirmExport}
+          onCancel={cancelExport}
+          usage={usage}
+        />
+      )}
 
       {/* Navigation */}
       <div className="flex gap-2">

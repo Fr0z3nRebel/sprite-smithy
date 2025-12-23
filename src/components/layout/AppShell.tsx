@@ -5,8 +5,12 @@ import CenterPanel from './CenterPanel';
 import RightPanel from './RightPanel';
 import UserMenu from '@/components/auth/UserMenu';
 import TierBadge from '@/components/billing/TierBadge';
+import { useUsage } from '@/hooks/useUsage';
 
 export default function AppShell() {
+  // Initialize usage data once at app level
+  useUsage();
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Left Panel - Controls */}

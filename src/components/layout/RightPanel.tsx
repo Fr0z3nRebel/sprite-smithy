@@ -7,6 +7,8 @@ import UpgradeButton from '@/components/billing/UpgradeButton';
 
 export default function RightPanel() {
   const frames = useStore((state) => state.frames);
+  const usage = useStore((state) => state.usage);
+  const usageLoading = useStore((state) => state.usageLoading);
   const { tier, isPro } = usePurchase();
 
   return (
@@ -37,6 +39,40 @@ export default function RightPanel() {
             {isPro ? '✨ Pro' : 'Free Trial'}
           </span>
         </div>
+
+        {/* Usage Display for Free Users */}
+        {!isPro && usage && !usageLoading && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Usage:</span>
+              <span className="text-sm font-medium">
+                {usage.video_count}/{usage.limit} videos
+              </span>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+              <div
+                className={`h-full transition-all ${
+                  usage.video_count >= usage.limit
+                    ? 'bg-destructive'
+                    : 'bg-orange-500'
+                }`}
+                style={{
+                  width: `${(usage.video_count / usage.limit) * 100}%`,
+                }}
+              />
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Resets on{' '}
+              {new Intl.DateTimeFormat('en-US', {
+                month: 'short',
+                day: 'numeric',
+              }).format(usage.next_reset_date)}
+            </p>
+          </div>
+        )}
 
         {!isPro && (
           <>
