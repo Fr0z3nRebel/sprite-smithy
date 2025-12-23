@@ -48,7 +48,7 @@ export default function UpgradeButton() {
         className="w-full"
         size="lg"
       >
-        {isLoading ? 'Processing...' : 'Upgrade to Pro - $30'}
+        {isLoading ? 'Processing...' : 'Upgrade Now'}
       </Button>
       {error && (
         <p className="text-xs text-destructive text-center">{error}</p>
