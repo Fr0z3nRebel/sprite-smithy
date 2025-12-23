@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -10,8 +11,14 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
-                <span className="text-lg font-bold text-primary-foreground">⚒️</span>
+              <div className="w-8 h-8 flex items-center justify-center">
+                <Image
+                  src="/assets/sprite-smithy-logo.webp"
+                  alt="Sprite Smithy Logo"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               </div>
               <span className="text-lg font-bold">Sprite Smithy</span>
             </div>
