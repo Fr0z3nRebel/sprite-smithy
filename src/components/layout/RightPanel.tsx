@@ -33,7 +33,7 @@ export default function RightPanel() {
           <span className="text-sm text-muted-foreground">Tier:</span>
           <span
             className={`text-sm font-medium ${
-              isPro ? 'text-green-600' : 'text-orange-600'
+              isPro ? 'text-green-600' : 'text-orange-500'
             }`}
           >
             {isPro ? '✨ Pro' : 'Free Trial'}
@@ -55,7 +55,7 @@ export default function RightPanel() {
               <div
                 className={`h-full transition-all ${
                   usage.video_count >= usage.limit
-                    ? 'bg-destructive'
+                    ? 'bg-orange-500'
                     : 'bg-orange-500'
                 }`}
                 style={{

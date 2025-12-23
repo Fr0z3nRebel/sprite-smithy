@@ -15,6 +15,7 @@ export function useExport() {
   const [exportProgress, setExportProgress] = useState(0);
   const [exportError, setExportError] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showLimitModal, setShowLimitModal] = useState(false);
 
   const frames = useStore((state) => state.frames);
   const settings = useStore((state) => state.settings);
@@ -251,7 +252,7 @@ export function useExport() {
   const initiateExport = useCallback(async () => {
     // Check if free user has reached limit
     if (!isPro && hasReachedLimit) {
-      setExportError('You have reached your monthly export limit. Please upgrade to Pro.');
+      setShowLimitModal(true);
       return false;
     }
 
@@ -276,11 +277,18 @@ export function useExport() {
     setShowConfirmModal(false);
   }, []);
 
+  // Function called when user closes limit modal
+  const closeLimitModal = useCallback(() => {
+    setShowLimitModal(false);
+  }, []);
+
   return {
     initiateExport,
     confirmExport,
     cancelExport,
+    closeLimitModal,
     showConfirmModal,
+    showLimitModal,
     usage,
     isExporting,
     exportProgress,

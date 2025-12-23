@@ -6,6 +6,7 @@ import { useExport } from '@/hooks/useExport';
 import { createSpriteSheetPreview } from '@/lib/export/spriteSheet';
 import Button from '@/components/ui/Button';
 import ExportConfirmationModal from '@/components/export/ExportConfirmationModal';
+import ExportLimitModal from '@/components/export/ExportLimitModal';
 
 export default function Step7Export() {
   const frames = useStore((state) => state.frames);
@@ -20,7 +21,9 @@ export default function Step7Export() {
     initiateExport,
     confirmExport,
     cancelExport,
+    closeLimitModal,
     showConfirmModal,
+    showLimitModal,
     usage,
     isExporting,
     exportError,
@@ -231,10 +234,10 @@ export default function Step7Export() {
         </div>
       )}
 
-      {/* Error Display */}
-      {exportError && (
+      {/* Error Display - only show non-limit errors */}
+      {exportError && exportError !== 'You have reached your monthly export limit. Please upgrade to Pro.' && (
         <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-          <p className="text-sm text-destructive">{exportError}</p>
+          <p className="text-sm text-destructive font-medium">{exportError}</p>
         </div>
       )}
 
@@ -254,6 +257,15 @@ export default function Step7Export() {
           isOpen={showConfirmModal}
           onConfirm={confirmExport}
           onCancel={cancelExport}
+          usage={usage}
+        />
+      )}
+
+      {/* Limit Reached Modal - upsell to Pro */}
+      {showLimitModal && usage && (
+        <ExportLimitModal
+          isOpen={showLimitModal}
+          onClose={closeLimitModal}
           usage={usage}
         />
       )}
