@@ -74,6 +74,13 @@
 3. Enter your webhook URL:
    - **Development**: `https://your-app.vercel.app/api/stripe/webhooks`
    - **Production**: `https://your-production-domain.com/api/stripe/webhooks`
+   
+   **⚠️ Important for Vercel Protected Environments:**
+   - If you're using one of Vercel's auth protected environments, you'll need to enable **Protection Bypass for Automation** in your Vercel project settings
+   - Add the bypass key as a query parameter to your webhook URL: `?x-vercel-protection-bypass=YOUR_BYPASS_KEY`
+   - Example: `https://your-app.vercel.app/api/stripe/webhooks?x-vercel-protection-bypass=your-bypass-key`
+   - You can find your bypass key in Vercel Dashboard → **Settings** → **Deployment Protection** → **Protection Bypass for Automation**
+
 4. Select events to listen for:
    - ✅ `checkout.session.completed`
    - ✅ `payment_intent.succeeded`
