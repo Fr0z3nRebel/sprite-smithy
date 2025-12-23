@@ -1,14 +1,25 @@
 'use client';
 
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
+import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function AccountPage() {
-  const { profile, updateProfile } = useUser();
-  const [fullName, setFullName] = useState(profile?.full_name || '');
+  const { profile, updateProfile, isLoading: profileLoading } = useUser();
+  const { user } = useAuth();
+  const [fullName, setFullName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Sync fullName state when profile loads or changes
+  useEffect(() => {
+    if (profile) {
+      setFullName(profile.full_name || '');
+    }
+  }, [profile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +40,20 @@ export default function AccountPage() {
   return (
     <div className="min-h-screen bg-muted/20 py-12">
       <div className="container mx-auto px-4 max-w-2xl">
-        <h1 className="text-3xl font-bold mb-8">Account Settings</h1>
+        {/* Header with back button */}
+        <div className="mb-8">
+          <Link
+            href="/app/tool"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Tool</span>
+          </Link>
+          <h1 className="text-3xl font-bold mb-2">Account Settings</h1>
+          <p className="text-muted-foreground">
+            Manage your profile information and account details
+          </p>
+        </div>
 
         <div className="bg-card border border-border rounded-lg p-6 space-y-6">
           <div>
@@ -40,7 +64,7 @@ export default function AccountPage() {
                 <label className="block text-sm font-medium mb-2">Email</label>
                 <input
                   type="email"
-                  value={profile?.email || ''}
+                  value={profile?.email || user?.email || ''}
                   disabled
                   className="w-full px-4 py-2 border border-border rounded-lg bg-muted text-muted-foreground cursor-not-allowed"
                 />

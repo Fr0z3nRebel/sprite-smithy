@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useStore } from '@/store';
 import { createClient } from '@/lib/supabase/client';
 
@@ -10,7 +10,7 @@ import { createClient } from '@/lib/supabase/client';
  */
 export function useAuth() {
   const { user, session, setAuth, clearAuth, setLoading } = useStore();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     // Get initial session

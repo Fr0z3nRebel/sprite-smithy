@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useStore } from '@/store';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from './useAuth';
@@ -11,7 +11,7 @@ import { useAuth } from './useAuth';
 export function useUser() {
   const { user } = useAuth();
   const { profile, setProfile } = useStore();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     if (!user) {
