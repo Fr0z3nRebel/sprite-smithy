@@ -7,6 +7,9 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Sprite Smithy - AI Video to Sprite Sheet Converter',
   description: 'Convert AI-generated character videos into perfectly aligned, loopable 2D sprite sheets using deterministic image processing.',
+  icons: {
+    icon: '/assets/sprite-smithy-logo.webp',
+  },
 };
 
 export default function RootLayout({

@@ -1,22 +1,45 @@
 'use client';
 
+import Image from 'next/image';
 import { useStore } from '@/store';
+
+const steps = [
+  { id: 1, name: 'Upload Video' },
+  { id: 2, name: 'Loop Selection' },
+  { id: 3, name: 'Frame Extraction' },
+  { id: 4, name: 'Background Removal' },
+  { id: 5, name: 'Auto-Crop & Sizing' },
+  { id: 6, name: 'Halo Remover' },
+  { id: 7, name: 'Export' },
+] as const;
+
+function AppLogo() {
+  return (
+    <div>
+      <div className="flex items-center gap-3">
+        <div className="h-6 w-6 flex-shrink-0 flex items-center justify-center">
+          <Image
+            src="/assets/sprite-smithy-logo.webp"
+            alt="Sprite Smithy Logo"
+            width={24}
+            height={24}
+            className="object-contain h-full w-full"
+          />
+        </div>
+        <h1 className="text-2xl font-bold text-foreground leading-tight">Sprite Smithy</h1>
+      </div>
+      <p className="text-sm text-muted-foreground mt-1 leading-tight whitespace-nowrap">
+        AI Video to Sprite Sheet Converter
+      </p>
+    </div>
+  );
+}
 
 export default function LeftPanel() {
   const currentStep = useStore((state) => state.currentStep);
   const setCurrentStep = useStore((state) => state.setCurrentStep);
   const videoUrl = useStore((state) => state.video.url);
   const frames = useStore((state) => state.frames);
-
-  const steps = [
-    { id: 1, name: 'Upload Video' },
-    { id: 2, name: 'Loop Selection' },
-    { id: 3, name: 'Frame Extraction' },
-    { id: 4, name: 'Background Removal' },
-    { id: 5, name: 'Auto-Crop & Sizing' },
-    { id: 6, name: 'Halo Remover' },
-    { id: 7, name: 'Export' },
-  ] as const;
 
   // Determine which steps are accessible based on progress
   const isStepAccessible = (stepId: number) => {
@@ -40,10 +63,7 @@ export default function LeftPanel() {
   return (
     <div className="p-6 h-full flex flex-col">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-foreground">Sprite Smithy</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          AI Video to Sprite Sheet Converter
-        </p>
+        <AppLogo />
       </div>
 
       {/* Workflow Steps */}
