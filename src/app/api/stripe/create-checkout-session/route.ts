@@ -3,9 +3,11 @@ import Stripe from 'stripe';
 import { createClient } from '@/lib/supabase/server';
 import { STRIPE_CONFIG } from '@/lib/stripe/config';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-});
+function getStripeClient() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2025-12-15.clover',
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,6 +38,9 @@ export async function POST(request: NextRequest) {
     }
 
     let customerId = purchase?.stripe_customer_id;
+
+    // Initialize Stripe client (lazy initialization - only when route is called)
+    const stripe = getStripeClient();
 
     // Create Stripe customer if doesn't exist
     if (!customerId) {
