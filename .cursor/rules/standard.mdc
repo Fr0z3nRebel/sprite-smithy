@@ -1,0 +1,11 @@
+---
+alwaysApply: true
+---
+
+Follow DRY. Prefer small, composable functions. Reuse existing utilities/components where possible; extract shared helpers instead of copy‑pasting.
+
+When told to commit: use a semantic subject 50 characters or less; wrap body at 72 characters; body has three sentences: what changed, why, how it was tested, separated by blank lines.
+
+Touch only files needed for the current request. When proposing changes, show only relevant diffs or patched snippets, not full files, unless asked.
+
+Use quick reasoning for small edits; reserve deep step‑by‑step reasoning for complex tasks. If the task is ambiguous, ask 1–3 short clarification questions instead of changing many files.
