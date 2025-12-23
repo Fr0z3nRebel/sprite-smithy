@@ -46,11 +46,12 @@ export default function UpgradeButton() {
         onClick={handleUpgrade}
         disabled={isLoading}
         className="w-full"
+        size="lg"
       >
-        {isLoading ? 'Loading...' : 'Upgrade to Pro - $30'}
+        {isLoading ? 'Processing...' : 'Upgrade to Pro - $30'}
       </Button>
       {error && (
-        <p className="text-xs text-destructive">{error}</p>
+        <p className="text-xs text-destructive text-center">{error}</p>
       )}
     </div>
   );
