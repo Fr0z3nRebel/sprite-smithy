@@ -9,32 +9,78 @@ export default function Step2LoopSelection() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentFrame, setCurrentFrame] = useState(0);
+  const [previewFps, setPreviewFps] = useState<number | null>(null);
   const animationRef = useRef<number | null>(null);
+  const frameSkipTimerRef = useRef<number | null>(null);
 
   const video = useStore((state) => state.video);
   const loop = useStore((state) => state.loop);
   const setLoopSelection = useStore((state) => state.setLoopSelection);
+  const setFrameSkip = useStore((state) => state.setFrameSkip);
   const setCurrentStep = useStore((state) => state.setCurrentStep);
 
   const fps = video.metadata?.fps || 30;
+  const displayFps = previewFps ?? fps; // Use preview FPS if set, otherwise use actual FPS
   const totalFrames = video.metadata?.totalFrames || 0;
   const frameCount = loop.endFrame - loop.startFrame + 1;
   const duration = frameCount / fps;
+  
+  // Calculate actual frames that will be exported based on skip value
+  const exportedFrameCount = Math.ceil(frameCount / loop.frameSkip);
+
+  // Frame-by-frame advance for frame skip preview
+  const advanceFrameSkip = useCallback(() => {
+    if (!videoRef.current || !video.metadata || !isPlaying) return;
+
+    const videoEl = videoRef.current;
+    const currentFrameNum = Math.floor(videoEl.currentTime * fps);
+    const frameOffset = currentFrameNum - loop.startFrame;
+    
+    // Calculate next valid frame
+    const nextValidOffset = frameOffset + loop.frameSkip;
+    const nextValidFrame = loop.startFrame + nextValidOffset;
+    
+    if (nextValidFrame <= loop.endFrame) {
+      const nextValidTime = nextValidFrame / fps;
+      videoEl.currentTime = nextValidTime;
+      setCurrentFrame(nextValidFrame);
+      
+      // Schedule next frame advance using preview FPS for timing
+      const frameDuration = (1 / displayFps) * loop.frameSkip;
+      frameSkipTimerRef.current = window.setTimeout(advanceFrameSkip, frameDuration * 1000);
+    } else {
+      // Loop back to start
+      const startTime = loop.startFrame / fps;
+      videoEl.currentTime = startTime;
+      setCurrentFrame(loop.startFrame);
+      frameSkipTimerRef.current = window.setTimeout(advanceFrameSkip, (1 / displayFps) * 1000);
+    }
+  }, [fps, displayFps, loop.startFrame, loop.endFrame, loop.frameSkip, isPlaying, video.metadata]);
 
   // Loop playback within selected range
   const updatePlayback = useCallback(() => {
     if (!videoRef.current || !video.metadata) return;
 
-    const currentTime = videoRef.current.currentTime;
+    const videoEl = videoRef.current;
+    const currentTime = videoEl.currentTime;
     const frame = Math.floor(currentTime * fps);
     setCurrentFrame(frame);
 
     const startTime = loop.startFrame / fps;
     const endTime = (loop.endFrame + 1) / fps;
 
+    // Normal playback when frameSkip is 1
     // Loop back to start if we've passed the end
     if (currentTime >= endTime) {
-      videoRef.current.currentTime = startTime;
+      videoEl.currentTime = startTime;
+      setCurrentFrame(loop.startFrame);
+    }
+
+    // Ensure video keeps playing if it should be playing
+    if (isPlaying && videoEl.paused && videoEl.readyState >= 2) {
+      videoEl.play().catch(() => {
+        // Ignore autoplay errors
+      });
     }
 
     if (isPlaying) {
@@ -42,25 +88,177 @@ export default function Step2LoopSelection() {
     }
   }, [fps, loop.startFrame, loop.endFrame, isPlaying, video.metadata]);
 
+  // Update video playback rate when preview FPS changes
   useEffect(() => {
-    if (isPlaying) {
-      animationRef.current = requestAnimationFrame(updatePlayback);
+    if (videoRef.current) {
+      if (loop.frameSkip === 1) {
+        // Only adjust playback rate for normal playback (not frame skip mode)
+        const playbackRate = displayFps / fps;
+        videoRef.current.playbackRate = playbackRate;
+      } else {
+        // Reset playback rate in frame skip mode (we control timing manually)
+        videoRef.current.playbackRate = 1;
+      }
     }
+  }, [displayFps, fps, loop.frameSkip]);
+
+  useEffect(() => {
+    // Clean up any existing timers/animations
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+    if (frameSkipTimerRef.current) {
+      clearTimeout(frameSkipTimerRef.current);
+      frameSkipTimerRef.current = null;
+    }
+
+    if (isPlaying) {
+      if (loop.frameSkip > 1) {
+        // Use frame-by-frame advance for frame skip preview
+        const videoEl = videoRef.current;
+        if (videoEl && video.metadata) {
+          // Pause the video and use manual frame advance
+          videoEl.pause();
+          // Start from current position or start frame
+          const currentFrameNum = Math.floor(videoEl.currentTime * fps);
+          const frameOffset = currentFrameNum - loop.startFrame;
+          const nearestValidOffset = Math.floor(frameOffset / loop.frameSkip) * loop.frameSkip;
+          const startFrame = loop.startFrame + nearestValidOffset;
+          const startTime = startFrame / fps;
+          videoEl.currentTime = startTime;
+          setCurrentFrame(startFrame);
+          
+          // Start frame-by-frame advance using preview FPS for timing
+          const frameDuration = (1 / displayFps) * loop.frameSkip;
+          frameSkipTimerRef.current = window.setTimeout(advanceFrameSkip, frameDuration * 1000);
+        }
+      } else {
+        // Normal continuous playback
+        const videoEl = videoRef.current;
+        if (videoEl && videoEl.paused) {
+          videoEl.play().catch(() => {
+            // Ignore autoplay errors
+          });
+        }
+        animationRef.current = requestAnimationFrame(updatePlayback);
+      }
+    }
+    
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+      if (frameSkipTimerRef.current) {
+        clearTimeout(frameSkipTimerRef.current);
+        frameSkipTimerRef.current = null;
       }
     };
-  }, [isPlaying, updatePlayback]);
+  }, [isPlaying, updatePlayback, advanceFrameSkip, loop.frameSkip, fps, video.metadata]);
 
-  // Seek to start frame when loop selection changes
+  // Seek to start frame when video first loads (only if not playing)
+  useEffect(() => {
+    if (videoRef.current && video.metadata && !isPlaying) {
+      // Only seek on initial load, not when sliders change (handlers do that)
+      const startTime = loop.startFrame / fps;
+      const currentTime = videoRef.current.currentTime;
+      // Only seek if we're not already at a valid frame in the range
+      if (currentTime < loop.startFrame / fps || currentTime > (loop.endFrame + 1) / fps) {
+        videoRef.current.currentTime = startTime;
+        setCurrentFrame(loop.startFrame);
+      }
+    }
+    // Only run when video metadata changes, not when loop selection changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [video.metadata, fps]);
+
+  // Jump to nearest valid frame when frame skip changes
   useEffect(() => {
     if (videoRef.current && video.metadata) {
-      const startTime = loop.startFrame / fps;
-      videoRef.current.currentTime = startTime;
-      setCurrentFrame(loop.startFrame);
+      const currentFrame = Math.floor(videoRef.current.currentTime * fps);
+      
+      if (currentFrame >= loop.startFrame && currentFrame <= loop.endFrame) {
+        // Calculate the nearest valid frame based on skip
+        const frameOffset = currentFrame - loop.startFrame;
+        const nearestValidOffset = Math.floor(frameOffset / loop.frameSkip) * loop.frameSkip;
+        const nearestValidFrame = loop.startFrame + nearestValidOffset;
+        
+        // Ensure we don't exceed endFrame
+        const validFrame = Math.min(nearestValidFrame, loop.endFrame);
+        const validTime = validFrame / fps;
+        
+        videoRef.current.currentTime = validTime;
+        setCurrentFrame(validFrame);
+      }
     }
-  }, [loop.startFrame, fps, video.metadata]);
+  }, [loop.frameSkip, fps, video.metadata, loop.startFrame, loop.endFrame]);
+
+  // Seek to start frame when video becomes available (but don't auto-play)
+  useEffect(() => {
+    const videoEl = videoRef.current;
+    if (!videoEl || !video.metadata || !video.url) return;
+
+    const seekToStart = () => {
+      const startTime = loop.startFrame / fps;
+      videoEl.currentTime = startTime;
+      setCurrentFrame(loop.startFrame);
+    };
+
+    // Wait for video to be ready
+    if (videoEl.readyState >= 2) {
+      // Video is already loaded
+      seekToStart();
+    } else {
+      // Wait for video to load
+      const handleCanPlay = () => {
+        seekToStart();
+        videoEl.removeEventListener('canplay', handleCanPlay);
+      };
+      videoEl.addEventListener('canplay', handleCanPlay);
+      return () => {
+        videoEl.removeEventListener('canplay', handleCanPlay);
+      };
+    }
+  }, [video.url, video.metadata, loop.startFrame, fps]); // Run when video becomes available
+
+  // Handle video ended event to restart loop
+  useEffect(() => {
+    const videoEl = videoRef.current;
+    if (!videoEl || !video.metadata) return;
+
+    const handleEnded = () => {
+      if (isPlaying) {
+        const startTime = loop.startFrame / fps;
+        videoEl.currentTime = startTime;
+        videoEl.play().catch(() => {
+          // Ignore autoplay errors
+        });
+      }
+    };
+
+    videoEl.addEventListener('ended', handleEnded);
+    return () => {
+      videoEl.removeEventListener('ended', handleEnded);
+    };
+  }, [isPlaying, loop.startFrame, fps, video.metadata]);
+
+  // Keep video playing if it pauses unexpectedly (but should be playing)
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !isPlaying) return;
+
+    const checkPlaying = () => {
+      if (isPlaying && video.paused && video.readyState >= 2) {
+        video.play().catch(() => {
+          // Ignore autoplay errors
+        });
+      }
+    };
+
+    const interval = setInterval(checkPlaying, 100);
+    return () => clearInterval(interval);
+  }, [isPlaying]);
 
   const handlePlayPause = () => {
     if (!videoRef.current) return;
@@ -109,12 +307,37 @@ export default function Step2LoopSelection() {
   const handleStartChange = (value: number) => {
     const newStart = Math.min(value, loop.endFrame - 1);
     setLoopSelection(newStart, loop.endFrame);
+    // Seek to the selected start frame (always, even if playing)
+    if (videoRef.current && video.metadata) {
+      const frameTime = newStart / fps;
+      videoRef.current.currentTime = frameTime;
+      setCurrentFrame(newStart);
+    }
   };
 
   const handleEndChange = (value: number) => {
     const newEnd = Math.max(value, loop.startFrame + 1);
     setLoopSelection(loop.startFrame, newEnd);
+    // Seek to the selected end frame (always, even if playing)
+    if (videoRef.current && video.metadata) {
+      const frameTime = newEnd / fps;
+      videoRef.current.currentTime = frameTime;
+      setCurrentFrame(newEnd);
+    }
   };
+
+  const handleFrameSkipChange = (value: number) => {
+    setFrameSkip(value);
+  };
+
+  const handlePreviewFpsChange = (value: number) => {
+    setPreviewFps(value);
+  };
+
+  // Reset preview FPS when video changes
+  useEffect(() => {
+    setPreviewFps(null);
+  }, [video.url]);
 
   return (
     <div className="space-y-6">
@@ -199,14 +422,38 @@ export default function Step2LoopSelection() {
           onChange={handleEndChange}
           valueFormatter={(v) => `Frame ${v}`}
         />
+
+        <Slider
+          label="Frame Skip"
+          value={loop.frameSkip}
+          min={1}
+          max={Math.max(1, frameCount)}
+          step={1}
+          onChange={handleFrameSkipChange}
+          valueFormatter={(v) => v === 1 ? 'Every frame' : `Every ${v} frames`}
+        />
+
+        <Slider
+          label="Preview FPS"
+          value={displayFps}
+          min={1}
+          max={120}
+          step={1}
+          onChange={handlePreviewFpsChange}
+          valueFormatter={(v) => `${v} fps`}
+        />
       </div>
 
       {/* Selection Info */}
       <div className="p-4 bg-accent/50 rounded-lg">
-        <div className="grid grid-cols-3 gap-4 text-sm text-center">
+        <div className="grid grid-cols-4 gap-4 text-sm text-center">
           <div>
             <span className="text-muted-foreground block">Selected</span>
             <span className="font-medium text-foreground text-lg">{frameCount} frames</span>
+          </div>
+          <div>
+            <span className="text-muted-foreground block">Exported</span>
+            <span className="font-medium text-foreground text-lg">{exportedFrameCount} frames</span>
           </div>
           <div>
             <span className="text-muted-foreground block">Duration</span>
@@ -214,7 +461,14 @@ export default function Step2LoopSelection() {
           </div>
           <div>
             <span className="text-muted-foreground block">FPS</span>
-            <span className="font-medium text-foreground text-lg">{fps}</span>
+            <span className="font-medium text-foreground text-lg">
+              {displayFps}
+              {previewFps !== null && previewFps !== fps && (
+                <span className="text-xs text-muted-foreground ml-1">
+                  (orig: {fps})
+                </span>
+              )}
+            </span>
           </div>
         </div>
       </div>
@@ -259,19 +513,19 @@ export default function Step2LoopSelection() {
       </div>
 
       {/* Warnings */}
-      {frameCount > 500 && frameCount <= 1000 && (
+      {exportedFrameCount > 500 && exportedFrameCount <= 1000 && (
         <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg">
           <p className="text-sm text-orange-600 dark:text-orange-400">
-            Warning: {frameCount} frames selected. Large frame counts may take
+            Warning: {exportedFrameCount} frames will be exported. Large frame counts may take
             longer to process.
           </p>
         </div>
       )}
 
-      {frameCount > 1000 && (
+      {exportedFrameCount > 1000 && (
         <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
           <p className="text-sm text-destructive">
-            Error: Maximum 1000 frames allowed. Please reduce your selection.
+            Error: Maximum 1000 frames allowed. Please reduce your selection or increase frame skip.
           </p>
         </div>
       )}
@@ -285,7 +539,7 @@ export default function Step2LoopSelection() {
           onClick={() => setCurrentStep(3)}
           className="flex-1"
           size="lg"
-          disabled={frameCount > 1000}
+          disabled={exportedFrameCount > 1000}
         >
           Continue to Frame Extraction
         </Button>

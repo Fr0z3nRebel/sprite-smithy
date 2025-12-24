@@ -8,6 +8,7 @@ export interface VideoSlice {
   setVideoUrl: (url: string) => void;
   setVideoMetadata: (metadata: VideoState['metadata']) => void;
   setLoopSelection: (start: number, end: number) => void;
+  setFrameSkip: (skip: number) => void;
   setSelectedFrames: (frames: number[]) => void;
   resetVideo: () => void;
 }
@@ -21,6 +22,7 @@ const initialVideoState: VideoState = {
 const initialLoopSelection: LoopSelection = {
   startFrame: 0,
   endFrame: 0,
+  frameSkip: 1,
   selectedFrames: [],
 };
 
@@ -50,6 +52,11 @@ export const createVideoSlice: StateCreator<VideoSlice> = (set) => ({
   setLoopSelection: (start, end) =>
     set((state) => ({
       loop: { ...state.loop, startFrame: start, endFrame: end },
+    })),
+
+  setFrameSkip: (skip) =>
+    set((state) => ({
+      loop: { ...state.loop, frameSkip: skip },
     })),
 
   setSelectedFrames: (frames) =>

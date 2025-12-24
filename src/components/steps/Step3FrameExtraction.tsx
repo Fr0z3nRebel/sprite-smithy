@@ -27,7 +27,8 @@ export default function Step3FrameExtraction() {
     );
   }
 
-  const frameCount = loop.endFrame - loop.startFrame + 1;
+  const totalFrameCount = loop.endFrame - loop.startFrame + 1;
+  const exportedFrameCount = Math.ceil(totalFrameCount / loop.frameSkip);
   const hasExtractedFrames = frames.raw.length > 0;
 
   const handleExtract = async () => {
@@ -60,7 +61,14 @@ export default function Step3FrameExtraction() {
           </div>
           <div>
             <span className="text-muted-foreground block">Frames</span>
-            <span className="font-medium text-foreground">{frameCount}</span>
+            <span className="font-medium text-foreground">
+              {exportedFrameCount}
+              {loop.frameSkip > 1 && (
+                <span className="text-xs text-muted-foreground ml-1">
+                  (of {totalFrameCount})
+                </span>
+              )}
+            </span>
           </div>
           <div>
             <span className="text-muted-foreground block">FPS</span>

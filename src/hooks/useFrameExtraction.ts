@@ -36,6 +36,7 @@ export function useFrameExtraction() {
         file: video.file,
         startFrame: loop.startFrame,
         endFrame: loop.endFrame,
+        frameSkip: loop.frameSkip,
         fps: video.metadata.fps,
         onProgress: (progress) => {
           setExtractionProgress(progress);
@@ -69,6 +70,7 @@ export function useFrameExtraction() {
     video.metadata,
     loop.startFrame,
     loop.endFrame,
+    loop.frameSkip,
     setRawFrames,
     setThumbnails,
     setProcessing,

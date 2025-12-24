@@ -15,5 +15,6 @@ export interface VideoState {
 export interface LoopSelection {
   startFrame: number;
   endFrame: number;
+  frameSkip: number;
   selectedFrames: number[];
 }

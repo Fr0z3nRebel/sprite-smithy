@@ -2,6 +2,7 @@ export interface FrameExtractionOptions {
   file: File;
   startFrame: number;
   endFrame: number;
+  frameSkip: number;
   fps: number;
   onProgress?: (progress: number) => void;
 }
@@ -38,17 +39,19 @@ function extractFrameAtTime(
 export async function extractFrames(
   options: FrameExtractionOptions
 ): Promise<ImageData[]> {
-  const { file, startFrame, endFrame, fps, onProgress } = options;
+  const { file, startFrame, endFrame, frameSkip, fps, onProgress } = options;
 
   // Validate inputs
-  if (startFrame < 0 || endFrame < startFrame) {
-    throw new Error('Invalid frame range');
+  if (startFrame < 0 || endFrame < startFrame || frameSkip < 1) {
+    throw new Error('Invalid frame range or skip value');
   }
 
-  const frameCount = endFrame - startFrame + 1;
-  if (frameCount > 1000) {
+  const totalFrameCount = endFrame - startFrame + 1;
+  const exportedFrameCount = Math.ceil(totalFrameCount / frameSkip);
+  
+  if (exportedFrameCount > 1000) {
     throw new Error(
-      'Too many frames. Maximum 1000 frames per extraction. Please reduce the range.'
+      'Too many frames. Maximum 1000 frames per extraction. Please reduce the range or increase frame skip.'
     );
   }
 
@@ -77,12 +80,15 @@ export async function extractFrames(
       throw new Error('Failed to create canvas context');
     }
 
-    // Extract frames
+    // Extract frames based on skip value
     const frames: ImageData[] = [];
     const frameDuration = 1 / fps;
 
-    for (let i = 0; i < frameCount; i++) {
-      const frameIndex = startFrame + i;
+    for (let i = 0; i < exportedFrameCount; i++) {
+      const frameIndex = startFrame + (i * frameSkip);
+      // Ensure we don't exceed endFrame
+      if (frameIndex > endFrame) break;
+      
       const time = frameIndex * frameDuration;
 
       try {
@@ -95,7 +101,7 @@ export async function extractFrames(
 
       // Update progress
       if (onProgress) {
-        const progress = Math.round(((i + 1) / frameCount) * 100);
+        const progress = Math.round(((i + 1) / exportedFrameCount) * 100);
         onProgress(progress);
       }
     }
