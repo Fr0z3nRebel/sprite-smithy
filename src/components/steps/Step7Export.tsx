@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '@/store';
 import { useExport } from '@/hooks/useExport';
+import { usePurchase } from '@/hooks/usePurchase';
 import { createSpriteSheetPreview } from '@/lib/export/spriteSheet';
 import Button from '@/components/ui/Button';
 import ExportConfirmationModal from '@/components/export/ExportConfirmationModal';
@@ -12,10 +13,11 @@ export default function Step7Export() {
   const frames = useStore((state) => state.frames);
   const exportSettings = useStore((state) => state.exportSettings);
   const setExportSettings = useStore((state) => state.setExportSettings);
-  const license = useStore((state) => state.license);
   const setCurrentStep = useStore((state) => state.setCurrentStep);
   const isProcessing = useStore((state) => state.isProcessing);
   const progress = useStore((state) => state.progress);
+
+  const { isPro } = usePurchase();
 
   const {
     initiateExport,
@@ -173,23 +175,15 @@ export default function Step7Export() {
         </div>
       </div>
 
-      {/* License Status */}
-      <div
-        className={`p-4 rounded-lg border ${
-          license.tier === 'paid'
-            ? 'bg-green-500/10 border-green-500/20'
-            : 'bg-orange-500/10 border-orange-500/20'
-        }`}
-      >
-        <p className="text-sm font-medium">
-          {license.tier === 'paid' ? 'Licensed Version' : 'Free Trial'}
-        </p>
-        <p className="text-xs text-muted-foreground mt-1">
-          {license.tier === 'paid'
-            ? 'Exports will not include watermark'
-            : 'Exports will include "Free Trial" watermark. Purchase a license to remove it.'}
-        </p>
-      </div>
+      {/* License Status - only show for free users */}
+      {!isPro && (
+        <div className="p-4 rounded-lg border bg-orange-500/10 border-orange-500/20">
+          <p className="text-sm font-medium">Free Trial</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Exports will include "Free Trial" watermark. Purchase a license to remove it.
+          </p>
+        </div>
+      )}
 
       {/* Export Summary */}
       <div className="p-4 bg-accent/50 rounded-lg space-y-2">
