@@ -7,7 +7,7 @@ import { previewChromaKey, detectBackgroundColor } from '@/lib/processing/chroma
 import ColorPicker from '@/components/ui/ColorPicker';
 import Slider from '@/components/ui/Slider';
 import Button from '@/components/ui/Button';
-import CanvasPreview from '@/components/ui/CanvasPreview';
+import CanvasPreview, { BackgroundType } from '@/components/ui/CanvasPreview';
 
 export default function Step4BackgroundRemoval() {
   const frames = useStore((state) => state.frames);
@@ -21,6 +21,7 @@ export default function Step4BackgroundRemoval() {
 
   const [previewFrame, setPreviewFrame] = useState<ImageData | null>(null);
   const [processedPreview, setProcessedPreview] = useState<ImageData | null>(null);
+  const [previewBackground, setPreviewBackground] = useState<BackgroundType>('checkerboard');
 
   const hasFrames = frames.raw.length > 0;
   const hasProcessedFrames = frames.processed.length > 0;
@@ -119,7 +120,45 @@ export default function Step4BackgroundRemoval() {
 
       {/* Preview */}
       <div className="space-y-3">
-        <p className="text-sm font-medium text-foreground text-center">Preview</p>
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium text-foreground">Preview</p>
+          {/* Background Toggle */}
+          <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
+            <button
+              onClick={() => setPreviewBackground('checkerboard')}
+              className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                previewBackground === 'checkerboard'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'hover:bg-secondary/80'
+              }`}
+              title="Checkerboard background"
+            >
+              ▦
+            </button>
+            <button
+              onClick={() => setPreviewBackground('dark')}
+              className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                previewBackground === 'dark'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'hover:bg-secondary/80'
+              }`}
+              title="Dark background"
+            >
+              ◼
+            </button>
+            <button
+              onClick={() => setPreviewBackground('light')}
+              className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                previewBackground === 'light'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'hover:bg-secondary/80'
+              }`}
+              title="Light background"
+            >
+              ◻
+            </button>
+          </div>
+        </div>
         <div className="grid grid-cols-2 gap-6">
           <CanvasPreview
             imageData={previewFrame}
@@ -133,6 +172,7 @@ export default function Step4BackgroundRemoval() {
             width={250}
             height={250}
             showGrid={true}
+            backgroundColor={previewBackground}
             label="After"
           />
         </div>
