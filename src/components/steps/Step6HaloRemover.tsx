@@ -174,22 +174,13 @@ export default function Step6HaloRemover() {
             </button>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-6">
-          <CanvasPreview
-            imageData={previewFrame}
-            width={250}
-            height={250}
-            showGrid={true}
-            backgroundColor={previewBackground}
-            label="Before"
-          />
+        <div className="flex justify-center">
           <CanvasPreview
             imageData={processedPreview}
-            width={250}
-            height={250}
+            width={Math.min(settings.sizing.targetSize, 512)}
+            height={Math.min(settings.sizing.targetSize, 512)}
             showGrid={true}
             backgroundColor={previewBackground}
-            label="After"
           />
         </div>
       </div>
