@@ -31,7 +31,6 @@ export default function UserMenu() {
         </div>
         <div className="text-left hidden md:block">
           <p className="text-sm font-medium">{profile?.full_name || 'User'}</p>
-          <p className="text-xs text-muted-foreground">{user.email}</p>
         </div>
       </button>
 
@@ -44,7 +43,6 @@ export default function UserMenu() {
           <div className="absolute right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg z-20 overflow-hidden">
             <div className="p-3 border-b border-border">
               <p className="text-sm font-medium">{profile?.full_name || 'User'}</p>
-              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
             <div className="py-1">
               <Link
