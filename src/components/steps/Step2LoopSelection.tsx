@@ -12,6 +12,7 @@ export default function Step2LoopSelection() {
   const [previewFps, setPreviewFps] = useState<number | null>(null);
   const animationRef = useRef<number | null>(null);
   const frameSkipTimerRef = useRef<number | null>(null);
+  const playPromiseRef = useRef<Promise<void> | null>(null);
 
   const video = useStore((state) => state.video);
   const loop = useStore((state) => state.loop);
@@ -76,24 +77,34 @@ export default function Step2LoopSelection() {
       setCurrentFrame(loop.startFrame);
     }
 
-    // Ensure video keeps playing if it should be playing
-    if (isPlaying && videoEl.paused && videoEl.readyState >= 2) {
-      videoEl.play().catch(() => {
-        // Ignore autoplay errors
-      });
+    // Ensure video keeps playing if it should be playing (only in normal playback mode)
+    if (isPlaying && loop.frameSkip === 1 && videoEl.paused && videoEl.readyState >= 2) {
+      // Only call play if there's no pending play operation
+      if (!playPromiseRef.current) {
+        const playPromise = videoEl.play();
+        playPromiseRef.current = playPromise;
+        playPromise.catch(() => {
+          // Ignore autoplay errors
+        }).finally(() => {
+          if (playPromiseRef.current === playPromise) {
+            playPromiseRef.current = null;
+          }
+        });
+      }
     }
 
     if (isPlaying) {
       animationRef.current = requestAnimationFrame(updatePlayback);
     }
-  }, [fps, loop.startFrame, loop.endFrame, isPlaying, video.metadata]);
+  }, [fps, loop.startFrame, loop.endFrame, loop.frameSkip, isPlaying, video.metadata]);
 
   // Update video playback rate when preview FPS changes
   useEffect(() => {
     if (videoRef.current) {
       if (loop.frameSkip === 1) {
         // Only adjust playback rate for normal playback (not frame skip mode)
-        const playbackRate = displayFps / fps;
+        // Clamp playback rate to supported range (0.25 to 4.0)
+        const playbackRate = Math.max(0.25, Math.min(4.0, displayFps / fps));
         videoRef.current.playbackRate = playbackRate;
       } else {
         // Reset playback rate in frame skip mode (we control timing manually)
@@ -118,6 +129,11 @@ export default function Step2LoopSelection() {
         // Use frame-by-frame advance for frame skip preview
         const videoEl = videoRef.current;
         if (videoEl && video.metadata) {
+          // Cancel any pending play operations
+          if (playPromiseRef.current) {
+            playPromiseRef.current.catch(() => {});
+            playPromiseRef.current = null;
+          }
           // Pause the video and use manual frame advance
           videoEl.pause();
           // Start from current position or start frame
@@ -137,11 +153,28 @@ export default function Step2LoopSelection() {
         // Normal continuous playback
         const videoEl = videoRef.current;
         if (videoEl && videoEl.paused) {
-          videoEl.play().catch(() => {
+          // Cancel any pending play operations before starting a new one
+          if (playPromiseRef.current) {
+            playPromiseRef.current.catch(() => {});
+          }
+          const playPromise = videoEl.play();
+          playPromiseRef.current = playPromise;
+          playPromise.catch(() => {
             // Ignore autoplay errors
+          }).finally(() => {
+            // Clear the promise ref once it resolves/rejects
+            if (playPromiseRef.current === playPromise) {
+              playPromiseRef.current = null;
+            }
           });
         }
         animationRef.current = requestAnimationFrame(updatePlayback);
+      }
+    } else {
+      // Not playing - cancel any pending play operations
+      if (playPromiseRef.current) {
+        playPromiseRef.current.catch(() => {});
+        playPromiseRef.current = null;
       }
     }
     
@@ -155,7 +188,7 @@ export default function Step2LoopSelection() {
         frameSkipTimerRef.current = null;
       }
     };
-  }, [isPlaying, updatePlayback, advanceFrameSkip, loop.frameSkip, fps, video.metadata]);
+  }, [isPlaying, updatePlayback, advanceFrameSkip, loop.frameSkip, fps, video.metadata, displayFps]);
 
   // Seek to start frame when video first loads (only if not playing)
   useEffect(() => {
@@ -228,11 +261,21 @@ export default function Step2LoopSelection() {
     if (!videoEl || !video.metadata) return;
 
     const handleEnded = () => {
-      if (isPlaying) {
+      if (isPlaying && loop.frameSkip === 1) {
         const startTime = loop.startFrame / fps;
         videoEl.currentTime = startTime;
-        videoEl.play().catch(() => {
+        // Cancel any pending play operations
+        if (playPromiseRef.current) {
+          playPromiseRef.current.catch(() => {});
+        }
+        const playPromise = videoEl.play();
+        playPromiseRef.current = playPromise;
+        playPromise.catch(() => {
           // Ignore autoplay errors
+        }).finally(() => {
+          if (playPromiseRef.current === playPromise) {
+            playPromiseRef.current = null;
+          }
         });
       }
     };
@@ -244,26 +287,41 @@ export default function Step2LoopSelection() {
   }, [isPlaying, loop.startFrame, fps, video.metadata]);
 
   // Keep video playing if it pauses unexpectedly (but should be playing)
+  // Only for normal playback mode (frameSkip === 1), not frame skip mode
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !isPlaying) return;
+    if (!video || !isPlaying || loop.frameSkip > 1) return;
 
     const checkPlaying = () => {
-      if (isPlaying && video.paused && video.readyState >= 2) {
-        video.play().catch(() => {
-          // Ignore autoplay errors
-        });
+      if (isPlaying && loop.frameSkip === 1 && video.paused && video.readyState >= 2) {
+        // Only call play if there's no pending play operation
+        if (!playPromiseRef.current) {
+          const playPromise = video.play();
+          playPromiseRef.current = playPromise;
+          playPromise.catch(() => {
+            // Ignore autoplay errors
+          }).finally(() => {
+            if (playPromiseRef.current === playPromise) {
+              playPromiseRef.current = null;
+            }
+          });
+        }
       }
     };
 
     const interval = setInterval(checkPlaying, 100);
     return () => clearInterval(interval);
-  }, [isPlaying]);
+  }, [isPlaying, loop.frameSkip]);
 
   const handlePlayPause = () => {
     if (!videoRef.current) return;
 
     if (isPlaying) {
+      // Cancel any pending play operations before pausing
+      if (playPromiseRef.current) {
+        playPromiseRef.current.catch(() => {});
+        playPromiseRef.current = null;
+      }
       videoRef.current.pause();
       setIsPlaying(false);
     } else {
@@ -276,7 +334,19 @@ export default function Step2LoopSelection() {
       ) {
         videoRef.current.currentTime = startTime;
       }
-      videoRef.current.play();
+      // Cancel any pending play operations
+      if (playPromiseRef.current) {
+        playPromiseRef.current.catch(() => {});
+      }
+      const playPromise = videoRef.current.play();
+      playPromiseRef.current = playPromise;
+      playPromise.catch(() => {
+        // Ignore autoplay errors
+      }).finally(() => {
+        if (playPromiseRef.current === playPromise) {
+          playPromiseRef.current = null;
+        }
+      });
       setIsPlaying(true);
     }
   };
