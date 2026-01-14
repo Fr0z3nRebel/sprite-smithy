@@ -99,35 +99,58 @@ export function getGlobalBoundingBox(
 }
 
 /**
- * Apply padding reduction to a bounding box
- * Reduces the box size by a percentage (useful for removing AI-generated padding)
+ * Apply padding adjustment to a bounding box
+ * Positive values reduce padding (crop in), negative values add padding (expand out)
  */
 export function applyPaddingReduction(
   box: BoundingBox,
-  reductionPercent: number
+  adjustmentPercent: number
 ): BoundingBox {
-  if (reductionPercent <= 0) {
+  if (adjustmentPercent === 0) {
     return box;
   }
 
-  const reductionFactor = reductionPercent / 100;
-  const widthReduction = Math.round(box.width * reductionFactor);
-  const heightReduction = Math.round(box.height * reductionFactor);
+  const adjustmentFactor = Math.abs(adjustmentPercent) / 100;
+  
+  if (adjustmentPercent > 0) {
+    // Reduce padding (crop in)
+    const widthReduction = Math.round(box.width * adjustmentFactor);
+    const heightReduction = Math.round(box.height * adjustmentFactor);
 
-  const newWidth = Math.max(1, box.width - widthReduction);
-  const newHeight = Math.max(1, box.height - heightReduction);
+    const newWidth = Math.max(1, box.width - widthReduction);
+    const newHeight = Math.max(1, box.height - heightReduction);
 
-  const xOffset = Math.round(widthReduction / 2);
-  const yOffset = Math.round(heightReduction / 2);
+    const xOffset = Math.round(widthReduction / 2);
+    const yOffset = Math.round(heightReduction / 2);
 
-  return {
-    minX: box.minX + xOffset,
-    minY: box.minY + yOffset,
-    maxX: box.maxX - xOffset,
-    maxY: box.maxY - yOffset,
-    width: newWidth,
-    height: newHeight,
-  };
+    return {
+      minX: box.minX + xOffset,
+      minY: box.minY + yOffset,
+      maxX: box.maxX - xOffset,
+      maxY: box.maxY - yOffset,
+      width: newWidth,
+      height: newHeight,
+    };
+  } else {
+    // Add padding (expand out)
+    const widthExpansion = Math.round(box.width * adjustmentFactor);
+    const heightExpansion = Math.round(box.height * adjustmentFactor);
+
+    const newWidth = box.width + widthExpansion;
+    const newHeight = box.height + heightExpansion;
+
+    const xOffset = Math.round(widthExpansion / 2);
+    const yOffset = Math.round(heightExpansion / 2);
+
+    return {
+      minX: box.minX - xOffset,
+      minY: box.minY - yOffset,
+      maxX: box.maxX + xOffset,
+      maxY: box.maxY + yOffset,
+      width: newWidth,
+      height: newHeight,
+    };
+  }
 }
 
 /**

@@ -16,7 +16,7 @@ const initialSettings: ProcessingSettings = {
     feathering: 0.1,
   },
   sizing: {
-    targetSize: 64,
+    targetSize: 256,
     paddingReduction: 0,
     anchor: 'center-bottom',
   },

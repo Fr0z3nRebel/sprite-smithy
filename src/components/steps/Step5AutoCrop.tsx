@@ -149,15 +149,15 @@ export default function Step5AutoCrop() {
         valueFormatter={(v) => `${v}×${v}px`}
       />
 
-      {/* Padding Reduction */}
+      {/* Padding Adjustment */}
       <Slider
-        label="Padding Reduction"
+        label="Padding Adjustment"
         value={settings.sizing.paddingReduction}
-        min={0}
+        min={-50}
         max={50}
         step={1}
         onChange={(value) => setSizingSettings({ paddingReduction: value })}
-        valueFormatter={(v) => `${v}%`}
+        valueFormatter={(v) => v === 0 ? '0%' : v > 0 ? `-${v}%` : `+${Math.abs(v)}%`}
       />
 
       {/* Anchor Alignment */}
@@ -214,20 +214,12 @@ export default function Step5AutoCrop() {
       {/* Preview */}
       <div className="space-y-3">
         <p className="text-sm font-medium text-foreground text-center">Preview</p>
-        <div className="grid grid-cols-2 gap-6">
-          <CanvasPreview
-            imageData={previewFrame}
-            width={250}
-            height={250}
-            showGrid={true}
-            label="Before"
-          />
+        <div className="flex justify-center">
           <CanvasPreview
             imageData={normalizedPreview}
-            width={250}
-            height={250}
+            width={Math.min(settings.sizing.targetSize, 512)}
+            height={Math.min(settings.sizing.targetSize, 512)}
             showGrid={true}
-            label="After"
           />
         </div>
       </div>
@@ -286,8 +278,8 @@ export default function Step5AutoCrop() {
       <div className="p-4 bg-muted/50 rounded-lg">
         <p className="text-xs text-muted-foreground">
           <strong>Tip:</strong> Bottom alignment keeps character feet grounded
-          across all frames. Use padding reduction to remove extra space from
-          AI-generated videos.
+          across all frames. Adjust padding to add or remove extra space around
+          your sprites.
         </p>
       </div>
 
