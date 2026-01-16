@@ -604,7 +604,6 @@ export default function Step2LoopSelection() {
         <Button
           onClick={() => setCurrentStep(3)}
           className="flex-1"
-          className="flex-1"
           size="lg"
           disabled={exportedFrameCount > 1000}
         >

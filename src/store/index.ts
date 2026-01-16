@@ -15,10 +15,12 @@ export interface UIState {
   isProcessing: boolean;
   progress: number;
   error: string | null;
+  showChangelog: boolean;
   setCurrentStep: (step: UIState['currentStep']) => void;
   setProcessing: (isProcessing: boolean) => void;
   setProgress: (progress: number) => void;
   setError: (error: string | null) => void;
+  setShowChangelog: (show: boolean) => void;
   resetUI: () => void;
 }
 
@@ -27,6 +29,7 @@ const initialUIState = {
   isProcessing: false,
   progress: 0,
   error: null,
+  showChangelog: false,
 };
 
 // Combined store type
@@ -77,6 +80,8 @@ export const useStore = create<AppStore>()(
       setProgress: (progress) => set({ progress }),
 
       setError: (error) => set({ error }),
+
+      setShowChangelog: (show) => set({ showChangelog: show }),
 
       resetUI: () => set(initialUIState),
     }),

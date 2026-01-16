@@ -1,14 +1,20 @@
 'use client';
 
 import { useState } from 'react';
+import { Newspaper } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUser } from '@/hooks/useUser';
+import { usePurchase } from '@/hooks/usePurchase';
+import { useStore } from '@/store';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function UserMenu() {
   const { user, signOut } = useAuth();
   const { profile } = useUser();
+  const { isPro } = usePurchase();
+  const showChangelog = useStore((state) => state.showChangelog);
+  const setShowChangelog = useStore((state) => state.setShowChangelog);
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -45,6 +51,16 @@ export default function UserMenu() {
               <p className="text-sm font-medium">{profile?.full_name || 'User'}</p>
             </div>
             <div className="py-1">
+              <button
+                onClick={() => {
+                  setShowChangelog(!showChangelog);
+                  setIsOpen(false);
+                }}
+                className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-muted/50 transition text-left"
+              >
+                <Newspaper className="w-4 h-4" />
+                Changelog
+              </button>
               <Link
                 href="/app/settings/account"
                 className="block px-4 py-2 text-sm hover:bg-muted/50 transition"
@@ -57,7 +73,7 @@ export default function UserMenu() {
                 className="block px-4 py-2 text-sm hover:bg-muted/50 transition"
                 onClick={() => setIsOpen(false)}
               >
-                Billing
+                Billing ({isPro ? 'Pro' : 'Free'})
               </Link>
             </div>
             <div className="border-t border-border py-1">

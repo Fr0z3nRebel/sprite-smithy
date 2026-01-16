@@ -42,6 +42,7 @@ interface LeftPanelProps {
 export default function LeftPanel({ onStepChange }: LeftPanelProps) {
   const currentStep = useStore((state) => state.currentStep);
   const setCurrentStep = useStore((state) => state.setCurrentStep);
+  const setShowChangelog = useStore((state) => state.setShowChangelog);
   const videoUrl = useStore((state) => state.video.url);
   const frames = useStore((state) => state.frames);
 
@@ -82,6 +83,7 @@ export default function LeftPanel({ onStepChange }: LeftPanelProps) {
               onClick={() => {
                 if (accessible) {
                   setCurrentStep(step.id);
+                  setShowChangelog(false);
                   onStepChange?.();
                 }
               }}
@@ -114,18 +116,6 @@ export default function LeftPanel({ onStepChange }: LeftPanelProps) {
           );
         })}
       </nav>
-
-      {/* Latest Updates */}
-      <div className="mt-6 mb-4 p-4 bg-accent/50 rounded-lg border border-border">
-        <div className="text-xs font-semibold text-foreground mb-2">
-          January 13, 2026
-        </div>
-        <div className="space-y-1.5 text-xs text-muted-foreground">
-          <div>• Simplified halo remover preview</div>
-          <div>• Improved auto-crop preview and padding controls</div>
-          <div>• Added background preview toggle</div>
-        </div>
-      </div>
 
       {/* Progress indicator */}
       <div className="pt-4 border-t border-border">

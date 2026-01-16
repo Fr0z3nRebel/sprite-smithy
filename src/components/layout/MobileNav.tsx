@@ -29,6 +29,7 @@ interface MobileNavProps {
 export default function MobileNav({ className, onStepChange }: MobileNavProps) {
   const currentStep = useStore((state) => state.currentStep);
   const setCurrentStep = useStore((state) => state.setCurrentStep);
+  const setShowChangelog = useStore((state) => state.setShowChangelog);
   const videoUrl = useStore((state) => state.video.url);
   const frames = useStore((state) => state.frames);
 
@@ -69,6 +70,7 @@ export default function MobileNav({ className, onStepChange }: MobileNavProps) {
               onClick={() => {
                 if (accessible) {
                   setCurrentStep(step.id);
+                  setShowChangelog(false);
                   onStepChange?.();
                 }
               }}

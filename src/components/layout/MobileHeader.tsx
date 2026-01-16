@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import { LayoutGrid } from 'lucide-react';
 import { useStore } from '@/store';
-import TierBadge from '@/components/billing/TierBadge';
 import UserMenu from '@/components/auth/UserMenu';
 
 interface MobileHeaderProps {
@@ -60,7 +59,6 @@ export default function MobileHeader({ onFramesClick }: MobileHeaderProps) {
             )}
           </button>
         )}
-        <TierBadge />
         <UserMenu />
       </div>
     </div>
