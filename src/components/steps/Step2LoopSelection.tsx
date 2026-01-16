@@ -369,7 +369,6 @@ export default function Step2LoopSelection() {
         <p className="text-sm text-muted-foreground">
           Please upload a video first
         </p>
-        <Button onClick={() => setCurrentStep(1)}>Back to Upload</Button>
       </div>
     );
   }
@@ -602,11 +601,9 @@ export default function Step2LoopSelection() {
 
       {/* Navigation Buttons */}
       <div className="flex gap-3">
-        <Button onClick={() => setCurrentStep(1)} variant="outline">
-          Back
-        </Button>
         <Button
           onClick={() => setCurrentStep(3)}
+          className="flex-1"
           className="flex-1"
           size="lg"
           disabled={exportedFrameCount > 1000}

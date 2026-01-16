@@ -35,7 +35,11 @@ function AppLogo() {
   );
 }
 
-export default function LeftPanel() {
+interface LeftPanelProps {
+  onStepChange?: () => void;
+}
+
+export default function LeftPanel({ onStepChange }: LeftPanelProps) {
   const currentStep = useStore((state) => state.currentStep);
   const setCurrentStep = useStore((state) => state.setCurrentStep);
   const videoUrl = useStore((state) => state.video.url);
@@ -75,7 +79,12 @@ export default function LeftPanel() {
           return (
             <button
               key={step.id}
-              onClick={() => accessible && setCurrentStep(step.id)}
+              onClick={() => {
+                if (accessible) {
+                  setCurrentStep(step.id);
+                  onStepChange?.();
+                }
+              }}
               disabled={!accessible}
               className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
                 currentStep === step.id

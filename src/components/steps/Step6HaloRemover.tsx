@@ -72,9 +72,6 @@ export default function Step6HaloRemover() {
         <p className="text-sm text-muted-foreground">
           Please extract frames first
         </p>
-        <Button onClick={() => setCurrentStep(3)}>
-          Back to Frame Extraction
-        </Button>
       </div>
     );
   }
@@ -269,14 +266,6 @@ export default function Step6HaloRemover() {
 
       {/* Navigation Buttons */}
       <div className="flex gap-2">
-        <Button
-          onClick={() => setCurrentStep(5)}
-          variant="outline"
-          disabled={isProcessing}
-        >
-          Back
-        </Button>
-
         {/* Skip button if strength is 0 */}
         {settings.haloRemoval.strength === 0 && (
           <Button

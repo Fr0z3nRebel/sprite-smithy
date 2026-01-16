@@ -13,7 +13,7 @@ export default function CenterPanel() {
   const currentStep = useStore((state) => state.currentStep);
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto p-8 bg-muted/20">
+    <div className="flex-1 flex flex-col overflow-y-auto p-4 lg:p-8 bg-muted/20">
       <div className="w-full max-w-4xl mx-auto">
         {currentStep === 1 && <Step1Upload />}
         {currentStep === 2 && <Step2LoopSelection />}

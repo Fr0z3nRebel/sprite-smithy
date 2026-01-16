@@ -60,9 +60,6 @@ export default function Step7Export() {
         <p className="text-sm text-muted-foreground">
           Please extract frames first
         </p>
-        <Button onClick={() => setCurrentStep(3)}>
-          Back to Frame Extraction
-        </Button>
       </div>
     );
   }
@@ -265,23 +262,14 @@ export default function Step7Export() {
       )}
 
       {/* Navigation */}
-      <div className="flex gap-2">
-        <Button
-          onClick={() => setCurrentStep(6)}
-          variant="outline"
-          disabled={isExporting}
-        >
-          Back
-        </Button>
-        <Button
-          onClick={() => setCurrentStep(1)}
-          variant="outline"
-          className="flex-1"
-          disabled={isExporting}
-        >
-          Start New Project
-        </Button>
-      </div>
+      <Button
+        onClick={() => setCurrentStep(1)}
+        variant="outline"
+        className="w-full"
+        disabled={isExporting}
+      >
+        Start New Project
+      </Button>
 
       {/* Info Box */}
       <div className="p-4 bg-muted/50 rounded-lg">

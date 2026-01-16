@@ -26,6 +26,17 @@ export default function Step4BackgroundRemoval() {
   const hasFrames = frames.raw.length > 0;
   const hasProcessedFrames = frames.processed.length > 0;
 
+  // Calculate max dimensions across all frames for consistent positioning
+  const maxFrameDimensions = frames.raw.length > 0
+    ? frames.raw.reduce(
+        (max, frame) => ({
+          width: Math.max(max.width, frame.width),
+          height: Math.max(max.height, frame.height),
+        }),
+        { width: 0, height: 0 }
+      )
+    : { width: 250, height: 250 };
+
   // Set initial preview frame
   useEffect(() => {
     if (frames.raw.length > 0 && !previewFrame) {
@@ -67,7 +78,6 @@ export default function Step4BackgroundRemoval() {
         <p className="text-sm text-muted-foreground">
           Please extract frames first
         </p>
-        <Button onClick={() => setCurrentStep(3)}>Back to Frame Extraction</Button>
       </div>
     );
   }
@@ -166,6 +176,7 @@ export default function Step4BackgroundRemoval() {
             height={250}
             showGrid={false}
             label="Before"
+            fixedContentSize={maxFrameDimensions}
           />
           <CanvasPreview
             imageData={processedPreview}
@@ -174,6 +185,7 @@ export default function Step4BackgroundRemoval() {
             showGrid={true}
             backgroundColor={previewBackground}
             label="After"
+            fixedContentSize={maxFrameDimensions}
           />
         </div>
       </div>
@@ -251,15 +263,8 @@ export default function Step4BackgroundRemoval() {
       )}
 
       {/* Navigation Buttons */}
-      <div className="flex gap-2">
-        <Button
-          onClick={() => setCurrentStep(3)}
-          variant="outline"
-          disabled={isProcessing}
-        >
-          Back
-        </Button>
-        {hasProcessedFrames && (
+      {hasProcessedFrames && (
+        <div className="flex gap-2">
           <Button
             onClick={() => setCurrentStep(5)}
             className="flex-1"
@@ -268,8 +273,8 @@ export default function Step4BackgroundRemoval() {
           >
             Continue to Auto-Crop
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Re-process Option */}
       {hasProcessedFrames && !isProcessing && (

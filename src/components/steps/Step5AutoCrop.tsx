@@ -72,9 +72,6 @@ export default function Step5AutoCrop() {
         <p className="text-sm text-muted-foreground">
           Please extract frames first
         </p>
-        <Button onClick={() => setCurrentStep(3)}>
-          Back to Frame Extraction
-        </Button>
       </div>
     );
   }
@@ -220,6 +217,10 @@ export default function Step5AutoCrop() {
             width={Math.min(settings.sizing.targetSize, 512)}
             height={Math.min(settings.sizing.targetSize, 512)}
             showGrid={true}
+            fixedContentSize={{
+              width: settings.sizing.targetSize,
+              height: settings.sizing.targetSize,
+            }}
           />
         </div>
       </div>
@@ -296,15 +297,8 @@ export default function Step5AutoCrop() {
       )}
 
       {/* Navigation Buttons */}
-      <div className="flex gap-2">
-        <Button
-          onClick={() => setCurrentStep(4)}
-          variant="outline"
-          disabled={isProcessing}
-        >
-          Back
-        </Button>
-        {hasNormalizedFrames && (
+      {hasNormalizedFrames && (
+        <div className="flex gap-2">
           <Button
             onClick={() => setCurrentStep(6)}
             className="flex-1"
@@ -313,8 +307,8 @@ export default function Step5AutoCrop() {
           >
             Continue to Halo Removal
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Re-process Option */}
       {hasNormalizedFrames && !isProcessing && (

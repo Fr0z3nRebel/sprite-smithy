@@ -156,22 +156,23 @@ export default function Step1Upload() {
       </div>
 
       {/* Drag and Drop Area */}
-      <div
+      <label
+        htmlFor="video-upload-input"
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={`
           border-2 border-dashed rounded-lg p-12 text-center cursor-pointer
-          transition-colors
+          transition-colors relative z-10 block
           ${
             isDragging
               ? 'border-primary bg-primary/5'
               : 'border-border hover:border-primary/50 hover:bg-accent/50'
           }
         `}
-        onClick={handleBrowseClick}
       >
         <input
+          id="video-upload-input"
           ref={fileInputRef}
           type="file"
           accept={SUPPORTED_VIDEO_EXTENSIONS.join(',')}
@@ -220,7 +221,7 @@ export default function Step1Upload() {
             </div>
           </div>
         )}
-      </div>
+      </label>
 
       {/* Error Display */}
       {uploadError && (

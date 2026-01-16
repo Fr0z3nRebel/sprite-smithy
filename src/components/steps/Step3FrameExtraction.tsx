@@ -22,7 +22,6 @@ export default function Step3FrameExtraction() {
         <p className="text-sm text-muted-foreground">
           Please upload a video first
         </p>
-        <Button onClick={() => setCurrentStep(1)}>Back to Upload</Button>
       </div>
     );
   }
@@ -139,25 +138,16 @@ export default function Step3FrameExtraction() {
       )}
 
       {/* Navigation Buttons */}
-      <div className="flex gap-3">
+      {hasExtractedFrames && (
         <Button
-          onClick={() => setCurrentStep(2)}
-          variant="outline"
+          onClick={() => setCurrentStep(4)}
+          className="w-full"
+          size="lg"
           disabled={isExtracting}
         >
-          Back
+          Continue to Background Removal
         </Button>
-        {hasExtractedFrames && (
-          <Button
-            onClick={() => setCurrentStep(4)}
-            className="flex-1"
-            size="lg"
-            disabled={isExtracting}
-          >
-            Continue to Background Removal
-          </Button>
-        )}
-      </div>
+      )}
 
       {/* Re-extract Option */}
       {hasExtractedFrames && !isExtracting && (

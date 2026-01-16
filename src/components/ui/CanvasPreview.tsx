@@ -11,6 +11,7 @@ interface CanvasPreviewProps {
   showGrid?: boolean;
   backgroundColor?: BackgroundType;
   label?: string;
+  fixedContentSize?: { width: number; height: number }; // Use fixed size for consistent positioning
 }
 
 export default function CanvasPreview({
@@ -20,6 +21,7 @@ export default function CanvasPreview({
   showGrid = true,
   backgroundColor = 'checkerboard',
   label,
+  fixedContentSize,
 }: CanvasPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -38,16 +40,20 @@ export default function CanvasPreview({
       drawBackground(ctx, width, height, backgroundColor);
     }
 
-    // Calculate scaling to fit imageData in canvas while preserving aspect ratio
+    // Use fixed content size for consistent positioning, or fall back to imageData dimensions
+    const contentWidth = fixedContentSize?.width ?? imageData.width;
+    const contentHeight = fixedContentSize?.height ?? imageData.height;
+
+    // Calculate scaling to fit content in canvas while preserving aspect ratio
     const scale = Math.min(
-      width / imageData.width,
-      height / imageData.height
+      width / contentWidth,
+      height / contentHeight
     );
 
-    const scaledWidth = imageData.width * scale;
-    const scaledHeight = imageData.height * scale;
+    const scaledWidth = contentWidth * scale;
+    const scaledHeight = contentHeight * scale;
 
-    // Center the image
+    // Center the image using fixed content size for consistent positioning
     const x = (width - scaledWidth) / 2;
     const y = (height - scaledHeight) / 2;
 
@@ -62,26 +68,33 @@ export default function CanvasPreview({
 
     // Draw scaled image
     ctx.drawImage(tempCanvas, x, y, scaledWidth, scaledHeight);
-  }, [imageData, width, height, showGrid, backgroundColor]);
+  }, [imageData, width, height, showGrid, backgroundColor, fixedContentSize]);
 
   return (
     <div className="space-y-2">
       {label && (
         <p className="text-sm font-medium text-foreground">{label}</p>
       )}
-      <div className="relative">
-        <canvas
-          ref={canvasRef}
-          width={width}
-          height={height}
-          className="w-full border border-border rounded-lg bg-muted"
-          style={{ imageRendering: 'pixelated' }}
-        />
-        {!imageData && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <p className="text-sm text-muted-foreground">No preview</p>
-          </div>
-        )}
+      <div className="relative flex justify-center">
+        <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
+          <canvas
+            ref={canvasRef}
+            width={width}
+            height={height}
+            className="border border-border rounded-lg bg-muted"
+            style={{ 
+              imageRendering: 'pixelated',
+              width: '100%',
+              height: '100%',
+              display: 'block'
+            }}
+          />
+          {!imageData && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <p className="text-sm text-muted-foreground">No preview</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

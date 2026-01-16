@@ -21,18 +21,15 @@ export function normalizeFrame(
   // Apply padding reduction to global box
   const adjustedBox = applyPaddingReduction(globalBox, paddingReduction);
 
-  // Detect this frame's bounding box
-  const frameBox = detectBoundingBox(frame);
-
-  // Calculate scale to fit content in target size
+  // Calculate scale to fit content in target size (use global box for consistent scaling)
   const scale = Math.min(
     targetSize / adjustedBox.width,
     targetSize / adjustedBox.height
   );
 
-  // Calculate scaled dimensions
-  const scaledWidth = Math.round(frameBox.width * scale);
-  const scaledHeight = Math.round(frameBox.height * scale);
+  // Calculate scaled dimensions using adjustedBox (consistent across all frames)
+  const scaledWidth = Math.round(adjustedBox.width * scale);
+  const scaledHeight = Math.round(adjustedBox.height * scale);
 
   // Create blank canvas of target size (transparent background)
   const output = createBlankImageData(targetSize, targetSize);
@@ -84,16 +81,24 @@ export function normalizeFrame(
 
   frameCtx.putImageData(frame, 0, 0);
 
+  // Use adjustedBox for cropping (consistent across all frames)
+  // This ensures all frames are cropped from the same position, ignoring extra content like smoke effects
+  // Clamp crop coordinates to frame boundaries to handle edge cases
+  const cropX = Math.max(0, Math.min(adjustedBox.minX, frame.width - 1));
+  const cropY = Math.max(0, Math.min(adjustedBox.minY, frame.height - 1));
+  const cropWidth = Math.min(adjustedBox.width, frame.width - cropX);
+  const cropHeight = Math.min(adjustedBox.height, frame.height - cropY);
+
   // Draw cropped and scaled frame onto output canvas
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
 
   ctx.drawImage(
     frameCanvas,
-    frameBox.minX,
-    frameBox.minY,
-    frameBox.width,
-    frameBox.height,
+    cropX,
+    cropY,
+    cropWidth,
+    cropHeight,
     x,
     y,
     scaledWidth,
