@@ -36,7 +36,7 @@ export default function MobileHeader({ onFramesClick }: MobileHeaderProps) {
         </div>
 
         {/* Help Button + Frames Button + User Menu */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center -space-x-1 flex-shrink-0">
           <div className="relative">
             <button
               onClick={() => setIsHelpMenuOpen(!isHelpMenuOpen)}

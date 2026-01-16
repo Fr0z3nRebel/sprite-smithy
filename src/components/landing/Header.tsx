@@ -75,7 +75,7 @@ export default function Header() {
           </div>
 
           {/* Mobile Menu Buttons */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className="md:hidden flex items-center -space-x-1">
             <div className="relative">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
