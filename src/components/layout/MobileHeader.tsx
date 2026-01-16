@@ -9,18 +9,7 @@ interface MobileHeaderProps {
   onFramesClick?: () => void;
 }
 
-const stepNames: Record<number, string> = {
-  1: 'Upload Video',
-  2: 'Loop Selection',
-  3: 'Frame Extraction',
-  4: 'Background Removal',
-  5: 'Auto-Crop & Sizing',
-  6: 'Halo Remover',
-  7: 'Export',
-};
-
 export default function MobileHeader({ onFramesClick }: MobileHeaderProps) {
-  const currentStep = useStore((state) => state.currentStep);
   const frames = useStore((state) => state.frames);
 
   return (
@@ -38,7 +27,7 @@ export default function MobileHeader({ onFramesClick }: MobileHeaderProps) {
         </div>
         <div className="min-w-0 flex-1">
           <h2 className="text-sm font-semibold text-foreground truncate">
-            {stepNames[currentStep] || 'Sprite Smithy'}
+            Sprite Smithy
           </h2>
         </div>
       </div>
