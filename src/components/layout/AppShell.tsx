@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Newspaper } from 'lucide-react';
+import { Newspaper, HelpCircle } from 'lucide-react';
 import LeftPanel from './LeftPanel';
 import CenterPanel from './CenterPanel';
 import RightPanel from './RightPanel';
@@ -33,6 +33,7 @@ export default function AppShell() {
   // Initialize usage data once at app level
   useUsage();
   const [isMobileFramesOpen, setIsMobileFramesOpen] = useState(false);
+  const [isHelpMenuOpen, setIsHelpMenuOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   return (
@@ -57,7 +58,51 @@ export default function AppShell() {
           {/* Top bar with user menu and changelog button (desktop only) */}
           <div className="hidden lg:flex items-center justify-between px-6 py-3 border-b border-border bg-background">
             <ChangelogButton />
-            <UserMenu />
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <button
+                  onClick={() => setIsHelpMenuOpen(!isHelpMenuOpen)}
+                  className="flex items-center px-3 py-2 rounded-lg hover:bg-muted/50 transition"
+                  aria-label="Help"
+                >
+                  <HelpCircle className="w-8 h-8 text-foreground" />
+                </button>
+                {isHelpMenuOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setIsHelpMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg z-20 overflow-hidden">
+                      <div className="py-1">
+                        <a
+                          href="/#features"
+                          className="block px-4 py-2 text-sm hover:bg-muted/50 transition"
+                          onClick={() => setIsHelpMenuOpen(false)}
+                        >
+                          Features
+                        </a>
+                        <a
+                          href="/#how-it-works"
+                          className="block px-4 py-2 text-sm hover:bg-muted/50 transition"
+                          onClick={() => setIsHelpMenuOpen(false)}
+                        >
+                          How It Works
+                        </a>
+                        <a
+                          href="/#pricing"
+                          className="block px-4 py-2 text-sm hover:bg-muted/50 transition"
+                          onClick={() => setIsHelpMenuOpen(false)}
+                        >
+                          Pricing
+                        </a>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+              <UserMenu />
+            </div>
           </div>
 
           {/* Content with bottom padding for mobile nav */}

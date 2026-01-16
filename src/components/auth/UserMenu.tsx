@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Newspaper } from 'lucide-react';
+import { Newspaper, Home, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUser } from '@/hooks/useUser';
 import { usePurchase } from '@/hooks/usePurchase';
@@ -47,10 +47,23 @@ export default function UserMenu() {
             onClick={() => setIsOpen(false)}
           />
           <div className="absolute right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg z-20 overflow-hidden">
-            <div className="p-3 border-b border-border">
-              <p className="text-sm font-medium">{profile?.full_name || 'User'}</p>
-            </div>
             <div className="py-1">
+              <Link
+                href="/app/tool"
+                className="flex items-center gap-2 w-full px-4 py-2 text-sm bg-primary text-primary-foreground hover:bg-primary/90 transition text-left font-medium"
+                onClick={() => setIsOpen(false)}
+              >
+                <ArrowRight className="w-4 h-4" />
+                Enter the Smithy
+              </Link>
+              <Link
+                href="/"
+                className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-muted/50 transition text-left"
+                onClick={() => setIsOpen(false)}
+              >
+                <Home className="w-4 h-4" />
+                Landing
+              </Link>
               <button
                 onClick={() => {
                   setShowChangelog(!showChangelog);
@@ -61,6 +74,8 @@ export default function UserMenu() {
                 <Newspaper className="w-4 h-4" />
                 Changelog
               </button>
+            </div>
+            <div className="border-t border-border py-1">
               <Link
                 href="/app/settings/account"
                 className="block px-4 py-2 text-sm hover:bg-muted/50 transition"
@@ -75,11 +90,9 @@ export default function UserMenu() {
               >
                 Billing ({isPro ? 'Pro' : 'Free'})
               </Link>
-            </div>
-            <div className="border-t border-border py-1">
               <button
                 onClick={handleSignOut}
-                className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-muted/50 transition"
+                className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:bg-muted/50 transition"
               >
                 Sign Out
               </button>

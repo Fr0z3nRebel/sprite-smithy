@@ -7,17 +7,6 @@ import Pricing from '@/components/landing/Pricing';
 import CTA from '@/components/landing/CTA';
 
 export default async function HomePage() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Redirect authenticated users to the tool
-  if (user) {
-    redirect('/app/tool');
-  }
-
   return (
     <main>
       <Hero />
