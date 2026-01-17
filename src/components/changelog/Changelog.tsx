@@ -10,6 +10,12 @@ interface Update {
 
 const updates: Update[] = [
   {
+    date: 'January 17, 2026',
+    items: [
+      'Sprite Smithy is now completely free for all users! No watermarks, unlimited commercial use, and all features available at no cost',
+    ],
+  },
+  {
     date: 'January 16, 2026',
     items: [
       'Added mobile responsive layout with bottom navigation for better mobile experience',
