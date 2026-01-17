@@ -30,7 +30,6 @@ export default function PrivacyPolicyPage() {
           <h3 className="text-xl font-semibold mb-3">2.1 Information You Provide</h3>
           <ul className="list-disc pl-6 mb-4 space-y-2">
             <li><strong>Account Information:</strong> When you create an account, we collect your email address and any other information you choose to provide.</li>
-            <li><strong>Payment Information:</strong> We use Stripe to process payments. We do not store your full payment card details. Stripe handles all payment data in accordance with their privacy policy and PCI-DSS standards.</li>
             <li><strong>Content:</strong> Videos and images you upload to our service for processing.</li>
             <li><strong>Communications:</strong> Information you provide when contacting our support team.</li>
           </ul>
@@ -48,7 +47,6 @@ export default function PrivacyPolicyPage() {
           <p className="mb-4">We use the information we collect to:</p>
           <ul className="list-disc pl-6 mb-4 space-y-2">
             <li>Provide, maintain, and improve our service</li>
-            <li>Process your transactions and send related information</li>
             <li>Send you technical notices, updates, and support messages</li>
             <li>Respond to your comments, questions, and requests</li>
             <li>Monitor and analyze usage patterns and trends</li>
@@ -77,7 +75,6 @@ export default function PrivacyPolicyPage() {
             We share information with third-party service providers who perform services on our behalf, including:
           </p>
           <ul className="list-disc pl-6 mb-4 space-y-2">
-            <li><strong>Stripe:</strong> Payment processing (see Stripe's privacy policy at <a href="https://stripe.com/privacy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">stripe.com/privacy</a>)</li>
             <li><strong>Supabase:</strong> Authentication and database services (see Supabase's privacy policy at <a href="https://supabase.com/privacy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">supabase.com/privacy</a>)</li>
             <li><strong>Vercel:</strong> Hosting and infrastructure services</li>
           </ul>

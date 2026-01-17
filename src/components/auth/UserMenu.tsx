@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Newspaper, Home, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUser } from '@/hooks/useUser';
-import { usePurchase } from '@/hooks/usePurchase';
 import { useStore } from '@/store';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -12,7 +11,6 @@ import Link from 'next/link';
 export default function UserMenu() {
   const { user, signOut } = useAuth();
   const { profile } = useUser();
-  const { isPro } = usePurchase();
   const showChangelog = useStore((state) => state.showChangelog);
   const setShowChangelog = useStore((state) => state.setShowChangelog);
   const router = useRouter();
@@ -82,13 +80,6 @@ export default function UserMenu() {
                 onClick={() => setIsOpen(false)}
               >
                 Account Settings
-              </Link>
-              <Link
-                href="/app/settings/billing"
-                className="block px-4 py-2 text-sm hover:bg-muted/50 transition"
-                onClick={() => setIsOpen(false)}
-              >
-                Billing ({isPro ? 'Pro' : 'Free'})
               </Link>
               <button
                 onClick={handleSignOut}

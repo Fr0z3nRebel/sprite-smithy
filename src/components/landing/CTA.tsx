@@ -26,18 +26,12 @@ export default function CTA() {
                   href="/signup"
                   className="inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring bg-white text-primary hover:bg-white/90 border-white text-lg px-8 py-6 h-11"
                 >
-                  Start Free Trial
-                </Link>
-                <Link
-                  href="#pricing"
-                  className="inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring bg-primary-foreground text-primary hover:bg-primary-foreground/90 text-lg px-8 py-6 h-11"
-                >
-                  View Pricing
+                  Get Started Free
                 </Link>
               </div>
 
               <p className="text-sm text-primary-foreground/80 pt-4">
-                No credit card required • 5 free videos/month • Upgrade anytime
+                All features are completely free • No credit card required • No limits
               </p>
             </div>
           </div>

@@ -44,12 +44,6 @@ export default function Header() {
             >
               How It Works
             </Link>
-            <Link
-              href="#pricing"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition"
-            >
-              Pricing
-            </Link>
           </nav>
 
           {/* CTA Buttons / User Menu */}
@@ -105,13 +99,6 @@ export default function Header() {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         How It Works
-                      </Link>
-                      <Link
-                        href="#pricing"
-                        className="block px-4 py-2 text-sm hover:bg-muted/50 transition"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Pricing
                       </Link>
                     </div>
                     {!isAuthenticated && (

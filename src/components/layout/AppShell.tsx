@@ -89,13 +89,6 @@ export default function AppShell() {
                         >
                           How It Works
                         </a>
-                        <a
-                          href="/#pricing"
-                          className="block px-4 py-2 text-sm hover:bg-muted/50 transition"
-                          onClick={() => setIsHelpMenuOpen(false)}
-                        >
-                          Pricing
-                        </a>
                       </div>
                     </div>
                   </>
