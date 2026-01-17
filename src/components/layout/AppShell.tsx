@@ -56,7 +56,7 @@ export default function AppShell() {
           </div>
 
           {/* Top bar with user menu and changelog button (desktop only) */}
-          <div className="hidden lg:flex items-center justify-between px-6 py-3 border-b border-border bg-background">
+          <div className="hidden lg:flex items-center justify-between px-6 h-16 border-b border-border bg-background">
             <ChangelogButton />
             <div className="flex items-center -space-x-1">
               <div className="relative">

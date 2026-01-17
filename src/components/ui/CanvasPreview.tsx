@@ -75,13 +75,13 @@ export default function CanvasPreview({
       {label && (
         <p className="text-sm font-medium text-foreground">{label}</p>
       )}
-      <div className="relative flex justify-center">
-        <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
+      <div className="relative flex justify-center w-full">
+        <div className="relative w-full max-w-full" style={{ maxWidth: `${width}px`, aspectRatio: `${width} / ${height}` }}>
           <canvas
             ref={canvasRef}
             width={width}
             height={height}
-            className="border border-border rounded-lg bg-muted"
+            className="border border-border rounded-lg bg-muted w-full h-full"
             style={{ 
               imageRendering: 'pixelated',
               width: '100%',

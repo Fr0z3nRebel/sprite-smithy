@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Hero() {
   return (
@@ -51,9 +52,13 @@ export default function Hero() {
             <div className="flex items-center gap-2">
               <div className="flex -space-x-2">
                 {[1, 2, 3, 4].map((i) => (
-                  <div
+                  <Image
                     key={i}
-                    className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/80 to-primary/40 border-2 border-background"
+                    src={`/assets/testimonial-pic${i}.jpeg`}
+                    alt={`Testimonial ${i}`}
+                    width={40}
+                    height={40}
+                    className="w-10 h-10 rounded-full border-2 border-background object-cover"
                   />
                 ))}
               </div>
@@ -72,18 +77,30 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Hero Image/Screenshot Placeholder */}
+        {/* Hero Image/Screenshot */}
         <div className="mt-16 max-w-5xl mx-auto">
           <div className="relative rounded-xl border border-border shadow-2xl overflow-hidden bg-muted/20">
-            <div className="aspect-video flex items-center justify-center">
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-primary/60 rounded-2xl flex items-center justify-center">
-                  <span className="text-3xl">⚒️</span>
-                </div>
-                <p className="text-muted-foreground">
-                  Tool Screenshot Preview
-                </p>
-              </div>
+            {/* Mobile Screenshot - visible on small/medium screens */}
+            <div className="block md:hidden">
+              <Image
+                src="/assets/landing-screenshot-mobile.png"
+                alt="Sprite Smithy Tool Screenshot - Mobile"
+                width={800}
+                height={600}
+                className="w-full h-auto"
+                priority
+              />
+            </div>
+            {/* Desktop Screenshot - visible on large screens */}
+            <div className="hidden md:block">
+              <Image
+                src="/assets/landing-screenshot-desktop.png"
+                alt="Sprite Smithy Tool Screenshot - Desktop"
+                width={1920}
+                height={1080}
+                className="w-full h-auto"
+                priority
+              />
             </div>
           </div>
         </div>

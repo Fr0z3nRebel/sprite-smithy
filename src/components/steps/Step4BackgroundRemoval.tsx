@@ -169,19 +169,19 @@ export default function Step4BackgroundRemoval() {
             </button>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <CanvasPreview
             imageData={previewFrame}
-            width={250}
-            height={250}
+            width={500}
+            height={500}
             showGrid={false}
             label="Before"
             fixedContentSize={maxFrameDimensions}
           />
           <CanvasPreview
             imageData={processedPreview}
-            width={250}
-            height={250}
+            width={500}
+            height={500}
             showGrid={true}
             backgroundColor={previewBackground}
             label="After"
