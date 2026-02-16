@@ -17,6 +17,15 @@ const nextConfig = {
       use: { loader: 'worker-loader' },
     });
 
+    // Exclude Remotion files from Next.js bundling
+    // Remotion is a separate tool and should not be bundled with Next.js
+    const { IgnorePlugin } = require('webpack');
+    config.plugins.push(
+      new IgnorePlugin({
+        resourceRegExp: /^remotion/,
+      })
+    );
+
     return config;
   },
   // Required for ffmpeg.wasm - SharedArrayBuffer support
