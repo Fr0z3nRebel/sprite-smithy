@@ -93,10 +93,10 @@ export default function AppShell() {
               </div>
               <Link
                 href="/"
-                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 transition text-sm"
+                className="p-2 rounded-lg hover:bg-muted/50 transition"
+                aria-label="Landing"
               >
                 <Home className="w-5 h-5" />
-                Landing
               </Link>
             </div>
           </div>
