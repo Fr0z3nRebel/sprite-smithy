@@ -29,10 +29,11 @@ export default function PrivacyPolicyPage() {
           
           <h3 className="text-xl font-semibold mb-3">2.1 Information You Provide</h3>
           <ul className="list-disc pl-6 mb-4 space-y-2">
-            <li><strong>Account Information:</strong> When you create an account, we collect your email address and any other information you choose to provide.</li>
-            <li><strong>Content:</strong> Videos and images you upload to our service for processing.</li>
             <li><strong>Communications:</strong> Information you provide when contacting our support team.</li>
           </ul>
+          <p className="mb-4">
+            <strong>Note:</strong> Sprite Smithy processes videos entirely in your browser. Your videos and images never leave your device and are not uploaded to our servers.
+          </p>
 
           <h3 className="text-xl font-semibold mb-3">2.2 Automatically Collected Information</h3>
           <ul className="list-disc pl-6 mb-4 space-y-2">
@@ -75,7 +76,6 @@ export default function PrivacyPolicyPage() {
             We share information with third-party service providers who perform services on our behalf, including:
           </p>
           <ul className="list-disc pl-6 mb-4 space-y-2">
-            <li><strong>Supabase:</strong> Authentication and database services (see Supabase's privacy policy at <a href="https://supabase.com/privacy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">supabase.com/privacy</a>)</li>
             <li><strong>Vercel:</strong> Hosting and infrastructure services</li>
           </ul>
 

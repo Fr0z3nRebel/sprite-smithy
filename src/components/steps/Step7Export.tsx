@@ -3,11 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '@/store';
 import { useExport } from '@/hooks/useExport';
-import { usePurchase } from '@/hooks/usePurchase';
 import { createSpriteSheetPreview } from '@/lib/export/spriteSheet';
 import Button from '@/components/ui/Button';
-import ExportConfirmationModal from '@/components/export/ExportConfirmationModal';
-import ExportLimitModal from '@/components/export/ExportLimitModal';
 
 export default function Step7Export() {
   const frames = useStore((state) => state.frames);
@@ -17,16 +14,8 @@ export default function Step7Export() {
   const isProcessing = useStore((state) => state.isProcessing);
   const progress = useStore((state) => state.progress);
 
-  const { isPro } = usePurchase();
-
   const {
     initiateExport,
-    confirmExport,
-    cancelExport,
-    closeLimitModal,
-    showConfirmModal,
-    showLimitModal,
-    usage,
     isExporting,
     exportError,
   } = useExport();
@@ -172,16 +161,6 @@ export default function Step7Export() {
         </div>
       </div>
 
-      {/* License Status - only show for free users */}
-      {!isPro && (
-        <div className="p-4 rounded-lg border bg-orange-500/10 border-orange-500/20">
-          <p className="text-sm font-medium">Free Trial</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Exports will include "Free Trial" watermark. Purchase a license to remove it.
-          </p>
-        </div>
-      )}
-
       {/* Export Summary */}
       <div className="p-4 bg-accent/50 rounded-lg space-y-2">
         <p className="text-sm font-medium text-foreground">Export Summary</p>
@@ -225,8 +204,8 @@ export default function Step7Export() {
         </div>
       )}
 
-      {/* Error Display - only show non-limit errors */}
-      {exportError && exportError !== 'You have reached your monthly export limit. Please upgrade to Pro.' && (
+      {/* Error Display */}
+      {exportError && (
         <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
           <p className="text-sm text-destructive font-medium">{exportError}</p>
         </div>
@@ -241,25 +220,6 @@ export default function Step7Export() {
       >
         {isExporting ? 'Exporting...' : 'Export Sprite Sheet'}
       </Button>
-
-      {/* Confirmation Modal - only for free users */}
-      {showConfirmModal && usage && (
-        <ExportConfirmationModal
-          isOpen={showConfirmModal}
-          onConfirm={confirmExport}
-          onCancel={cancelExport}
-          usage={usage}
-        />
-      )}
-
-      {/* Limit Reached Modal - upsell to Pro */}
-      {showLimitModal && usage && (
-        <ExportLimitModal
-          isOpen={showLimitModal}
-          onClose={closeLimitModal}
-          usage={usage}
-        />
-      )}
 
       {/* Navigation */}
       <Button

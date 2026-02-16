@@ -1,15 +1,14 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Newspaper, HelpCircle } from 'lucide-react';
+import Link from 'next/link';
+import { Newspaper, HelpCircle, Home } from 'lucide-react';
 import LeftPanel from './LeftPanel';
 import CenterPanel from './CenterPanel';
 import RightPanel from './RightPanel';
 import MobileNav from './MobileNav';
 import MobileHeader from './MobileHeader';
 import Sheet from '@/components/ui/Sheet';
-import UserMenu from '@/components/auth/UserMenu';
-import { useUsage } from '@/hooks/useUsage';
 import { useStore } from '@/store';
 
 function ChangelogButton() {
@@ -30,8 +29,6 @@ function ChangelogButton() {
 }
 
 export default function AppShell() {
-  // Initialize usage data once at app level
-  useUsage();
   const [isMobileFramesOpen, setIsMobileFramesOpen] = useState(false);
   const [isHelpMenuOpen, setIsHelpMenuOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -94,7 +91,13 @@ export default function AppShell() {
                   </>
                 )}
               </div>
-              <UserMenu />
+              <Link
+                href="/"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/50 transition text-sm"
+              >
+                <Home className="w-5 h-5" />
+                Landing
+              </Link>
             </div>
           </div>
 

@@ -4,7 +4,7 @@ import Footer from '@/components/landing/Footer';
 
 export const metadata: Metadata = {
   title: 'Sprite Smithy - AI Video to Sprite Sheet Converter',
-  description: 'Transform AI-generated character videos into perfectly aligned, loopable 2D sprite sheets using deterministic image processing. $30 lifetime access.',
+  description: 'Transform AI-generated character videos into perfectly aligned, loopable 2D sprite sheets using deterministic image processing. Free and fully client-side.',
 };
 
 export default function MarketingLayout({

@@ -84,7 +84,7 @@ export default function HowItWorks() {
             All processing happens in your browser - fast, secure, and private
           </p>
           <a
-            href="/signup"
+            href="/tool"
             className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition"
           >
             Get Started Free

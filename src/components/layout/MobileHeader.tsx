@@ -3,9 +3,8 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { LayoutGrid, HelpCircle } from 'lucide-react';
+import { LayoutGrid, HelpCircle, Home, Newspaper } from 'lucide-react';
 import { useStore } from '@/store';
-import UserMenu from '@/components/auth/UserMenu';
 
 interface MobileHeaderProps {
   onFramesClick?: () => void;
@@ -13,8 +12,8 @@ interface MobileHeaderProps {
 
 export default function MobileHeader({ onFramesClick }: MobileHeaderProps) {
   const frames = useStore((state) => state.frames);
-  const session = useStore((state) => state.session);
-  const isAuthenticated = !!session;
+  const showChangelog = useStore((state) => state.showChangelog);
+  const setShowChangelog = useStore((state) => state.setShowChangelog);
   const [isHelpMenuOpen, setIsHelpMenuOpen] = useState(false);
 
   return (
@@ -62,24 +61,48 @@ export default function MobileHeader({ onFramesClick }: MobileHeaderProps) {
                 <div className="py-1">
                   <Link
                     href="/#features"
-                    className="block px-4 py-2 text-sm hover:bg-muted/50 transition"
+                    className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted/50 transition"
                     onClick={() => setIsHelpMenuOpen(false)}
                   >
                     Features
                   </Link>
                   <Link
                     href="/#how-it-works"
-                    className="block px-4 py-2 text-sm hover:bg-muted/50 transition"
+                    className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted/50 transition"
                     onClick={() => setIsHelpMenuOpen(false)}
                   >
                     How It Works
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setShowChangelog(!showChangelog);
+                      setIsHelpMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-muted/50 transition text-left"
+                  >
+                    <Newspaper className="w-4 h-4" />
+                    Changelog
+                  </button>
+                  <Link
+                    href="/"
+                    className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted/50 transition"
+                    onClick={() => setIsHelpMenuOpen(false)}
+                  >
+                    <Home className="w-4 h-4" />
+                    Landing
                   </Link>
                 </div>
               </div>
             </>
           )}
         </div>
-        <UserMenu />
+        <Link
+          href="/"
+          className="flex items-center px-3 py-2 rounded-lg hover:bg-muted/50 transition"
+          aria-label="Landing"
+        >
+          <Home className="w-8 h-8 text-foreground" />
+        </Link>
       </div>
     </div>
   );

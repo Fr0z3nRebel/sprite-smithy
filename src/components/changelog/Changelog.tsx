@@ -26,7 +26,6 @@ const updates: Update[] = [
     date: 'January 14, 2026',
     items: [
       'Added auto-hide top bar with tab indicator for cleaner interface',
-      'Improved privacy by hiding user email from top-right menu',
     ],
   },
   {
@@ -41,10 +40,7 @@ const updates: Update[] = [
   {
     date: 'December 23, 2025',
     items: [
-      'Fixed Free Trial message display for Pro users in export',
       'Added frame skip and preview FPS controls to loop selection',
-      'Fixed duplicate API calls in purchase and user data fetching',
-      'Added export limit modal with Pro upsell for free tier users',
     ],
   },
 ];

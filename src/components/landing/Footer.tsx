@@ -42,8 +42,13 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/signup" className="text-muted-foreground hover:text-foreground transition">
-                  Get Started
+                <Link href="/tool" className="text-muted-foreground hover:text-foreground transition">
+                  Use Tool
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="text-muted-foreground hover:text-foreground transition">
+                  About
                 </Link>
               </li>
             </ul>
