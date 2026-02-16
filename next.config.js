@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Satisfy Next.js 16 when using Turbopack (dev default) with existing webpack config
+  turbopack: {},
   webpack: (config, { isServer }) => {
     // Required for @ffmpeg/ffmpeg to work properly
     config.resolve.fallback = {
