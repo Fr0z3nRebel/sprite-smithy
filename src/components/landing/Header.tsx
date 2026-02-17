@@ -29,13 +29,13 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             <Link
-              href="#features"
+              href="/#features"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition"
             >
               Features
             </Link>
             <Link
-              href="#how-it-works"
+              href="/#how-it-works"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition"
             >
               How It Works
@@ -77,14 +77,14 @@ export default function Header() {
                   <div className="absolute right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg z-20 overflow-hidden">
                     <div className="py-1">
                       <Link
-                        href="#features"
+                        href="/#features"
                         className="block px-4 py-2 text-sm hover:bg-muted/50 transition"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         Features
                       </Link>
                       <Link
-                        href="#how-it-works"
+                        href="/#how-it-works"
                         className="block px-4 py-2 text-sm hover:bg-muted/50 transition"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
