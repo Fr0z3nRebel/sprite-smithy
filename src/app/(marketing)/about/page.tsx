@@ -121,6 +121,20 @@ export default function AboutPage() {
               GDevelop&quot; without guesswork, watermarks, or a credit card.
               So I built the tool I wished existed.
             </p>
+            <figure className="mb-6 rounded-xl border border-border bg-muted/30 overflow-hidden w-[90%] mx-auto">
+              <Image
+                src="/assets/about/best-ai-tools-for-converting-video-footage-into-2D-sprites.webp"
+                alt="Illustration of AI tools that convert video footage into 2D sprites, highlighting Sprite Smithy as a focused solution for game developers."
+                width={1024}
+                height={572}
+                className="w-full h-auto object-cover"
+              />
+              <figcaption className="px-4 py-3 text-sm text-muted-foreground">
+                Finding the right AI tool to turn video footage into 2D sprites
+                is hard—Sprite Smithy is built specifically to bridge that gap
+                for GDevelop and other 2D engines.
+              </figcaption>
+            </figure>
           </section>
 
           {/* Section 2: Building a Better Anvil */}
@@ -149,6 +163,21 @@ export default function AboutPage() {
               output, control over the loop range, and exports that drop straight
               into a project.
             </p>
+            <figure className="mb-6 rounded-xl border border-border bg-muted/30 overflow-hidden w-[90%] mx-auto">
+              <Image
+                src="/assets/about/how-to-turn-a-video-into-a-sprite.webp"
+                alt="Before and after comparison showing a single running animation on the left and a full sprite sheet exported with Sprite Smithy on the right."
+                width={1024}
+                height={572}
+                className="w-full h-auto object-cover"
+                priority
+              />
+              <figcaption className="px-4 py-3 text-sm text-muted-foreground">
+                Before: a single AI-generated running animation. After: a clean,
+                loopable sprite sheet ready to drop into GDevelop with Sprite
+                Smithy.
+              </figcaption>
+            </figure>
           </section>
 
           {/* Section 3: Our Philosophy */}
