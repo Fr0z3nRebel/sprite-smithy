@@ -68,7 +68,7 @@ export default function Features() {
         <div className="mt-16 max-w-4xl mx-auto">
           <div className="grid md:grid-cols-2 gap-4">
             {[
-              'Browser-based processing - your videos never leave your computer',
+              'Private and secure browser-based processing',
               'Support for MP4, WebM, and MOV formats',
               'Customizable sprite sheet layouts',
               'Export metadata for easy integration',
