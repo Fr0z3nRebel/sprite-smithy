@@ -62,6 +62,53 @@ function AboutPageJsonLd() {
     ],
   };
 
+  const softwareId = `${baseUrl}/#software`;
+  const personId = `${baseUrl}/#person`;
+  const organizationId = `${baseUrl}/#organization`;
+
+  const richSnippetSchema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'SoftwareApplication',
+        '@id': softwareId,
+        name: 'Sprite Smithy',
+        applicationCategory: 'MultimediaApplication',
+        operatingSystem: 'Web Browser',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+        },
+        description: softwareSchema.description,
+        author: { '@id': personId },
+        publisher: { '@id': organizationId },
+      },
+      {
+        '@type': 'Person',
+        '@id': personId,
+        name: 'John Adams',
+        jobTitle: 'Indie Game Developer',
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: 'Looxahoma',
+          addressRegion: 'MS',
+        },
+        worksFor: { '@id': organizationId },
+      },
+      {
+        '@type': 'Organization',
+        '@id': organizationId,
+        name: 'Lefty Studios',
+        location: {
+          '@type': 'PostalAddress',
+          addressLocality: 'Looxahoma',
+          addressRegion: 'MS',
+        },
+      },
+    ],
+  };
+
   return (
     <>
       <script
@@ -74,6 +121,12 @@ function AboutPageJsonLd() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(softwareSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(richSnippetSchema),
         }}
       />
     </>
