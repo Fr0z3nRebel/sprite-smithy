@@ -6,7 +6,7 @@ import Slider from '@/components/ui/Slider';
 import Button from '@/components/ui/Button';
 import { getFrameAtFrameIndex } from '@/lib/video/videoInfo';
 import { compareFrames } from '@/lib/video/frameComparison';
-import { Search } from 'lucide-react';
+import { Wand2 } from 'lucide-react';
 
 export default function Step2LoopSelection() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -30,10 +30,10 @@ export default function Step2LoopSelection() {
   const displayFps = previewFps ?? fps; // Use preview FPS if set, otherwise use actual FPS
   const totalFrames = video.metadata?.totalFrames || 0;
   const frameCount = loop.endFrame - loop.startFrame + 1;
-  const duration = frameCount / fps;
-  
   // Calculate actual frames that will be exported based on skip value
   const exportedFrameCount = Math.ceil(frameCount / loop.frameSkip);
+  // Duration of exported animation at preview FPS
+  const duration = exportedFrameCount / displayFps;
 
   // Frame-by-frame advance for frame skip preview
   const advanceFrameSkip = useCallback(() => {
@@ -614,7 +614,7 @@ export default function Step2LoopSelection() {
                   aria-busy={isFindingEndFrame}
                   className="inline-flex items-center justify-center rounded p-0.5 text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-50 disabled:pointer-events-none"
                 >
-                  <Search
+                  <Wand2
                     className="h-[1em] w-[1em] text-sm"
                     aria-hidden
                   />
@@ -681,45 +681,6 @@ export default function Step2LoopSelection() {
               )}
             </span>
           </div>
-        </div>
-      </div>
-
-      {/* Quick Presets */}
-      <div className="space-y-3">
-        <p className="text-sm font-medium text-foreground">Quick Presets:</p>
-        <div className="grid grid-cols-4 gap-2">
-          <button
-            onClick={() => setLoopSelection(0, totalFrames - 1)}
-            className="px-3 py-2 bg-secondary hover:bg-secondary/80 rounded text-sm"
-          >
-            Full Video
-          </button>
-          <button
-            onClick={() => setLoopSelection(0, Math.min(149, totalFrames - 1))}
-            className="px-3 py-2 bg-secondary hover:bg-secondary/80 rounded text-sm"
-          >
-            First 5s
-          </button>
-          <button
-            onClick={() =>
-              setLoopSelection(Math.max(0, totalFrames - 150), totalFrames - 1)
-            }
-            className="px-3 py-2 bg-secondary hover:bg-secondary/80 rounded text-sm"
-          >
-            Last 5s
-          </button>
-          <button
-            onClick={() => {
-              const mid = Math.floor(totalFrames / 2);
-              setLoopSelection(
-                Math.max(0, mid - 75),
-                Math.min(mid + 74, totalFrames - 1)
-              );
-            }}
-            className="px-3 py-2 bg-secondary hover:bg-secondary/80 rounded text-sm"
-          >
-            Middle 5s
-          </button>
         </div>
       </div>
 
