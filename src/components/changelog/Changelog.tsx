@@ -10,22 +10,47 @@ interface Update {
 
 const updates: Update[] = [
   {
+    date: 'February 17, 2026',
+    items: [
+      'Added animated GIF export and hash sprite sheet JSON for PixiJS/Phaser',
+      'Released "Find End Frame" feature (step 2 magic wand)',
+      'Added Getting Started guide at /guide and FAQ page with JSON-LD',
+      'Fixed duration, presets, End Frame icon, and preview FPS timing in step 2',
+      'Enhanced about imagery',
+    ],
+  },
+  {
+    date: 'February 16, 2026',
+    items: [
+      'Added docs and simplified landing icon',
+    ],
+  },
+  {
+    date: 'February 15, 2026',
+    items: [
+      'Added About page',
+      'Made all commercial features available for free',
+    ],
+  },
+  {
     date: 'January 17, 2026',
     items: [
-      'Sprite Smithy is now completely free for all users! No watermarks, unlimited commercial use, and all features available at no cost',
+      'Sprite Smithy is now completely free for all users!',
+      'Watermarks removed, unlimited commercial use, and all features available at no cost',
     ],
   },
   {
     date: 'January 16, 2026',
     items: [
-      'Added mobile responsive layout with bottom navigation for better mobile experience',
-      'Moved changelog to dedicated view accessible from top navigation',
+      'Added mobile responsive layout with bottom navigation',
+      'Moved changelog to dedicated view; added help menu and improved nav',
+      'Disabled pricing and billing',
     ],
   },
   {
     date: 'January 14, 2026',
     items: [
-      'Added auto-hide top bar with tab indicator for cleaner interface',
+      'Hid user email from top-right menu for privacy',
     ],
   },
   {
@@ -34,13 +59,37 @@ const updates: Update[] = [
       'Fixed playback rate clamping and prevented play/pause conflicts',
       'Simplified halo remover preview to single image view',
       'Improved auto-crop preview and padding controls',
-      'Added background preview toggle to background removal step',
+      'Added background preview toggle and latest updates box to left panel',
     ],
   },
   {
     date: 'December 23, 2025',
     items: [
       'Added frame skip and preview FPS controls to loop selection',
+      'Added export limit modal, logo, favicon, and usage tracking for free tier',
+      'Fixed Free Trial message for Pro and duplicate API calls',
+    ],
+  },
+  {
+    date: 'December 22, 2025',
+    items: [
+      'Launched SaaS: auth, payments, landing page, Privacy Policy, Terms of Service',
+      'Enhanced billing page and fixed account settings and cookie chunking',
+      'Replaced emoji logo with sprite-smithy-logo.webp',
+    ],
+  },
+  {
+    date: 'December 20, 2025',
+    items: [
+      'Added background toggle to halo remover preview',
+      'Moved step controls to center panel',
+      'Fixed frame count display on seek',
+    ],
+  },
+  {
+    date: 'December 19, 2025',
+    items: [
+      'Initial release',
     ],
   },
 ];
@@ -75,9 +124,9 @@ export default function Changelog() {
               {update.items.map((item, itemIndex) => (
                 <li
                   key={itemIndex}
-                  className="text-sm text-muted-foreground flex items-start gap-2"
+                  className="text-sm text-muted-foreground flex items-center gap-2"
                 >
-                  <span className="text-primary mt-1">•</span>
+                  <span className="text-primary">•</span>
                   <span>{item}</span>
                 </li>
               ))}
