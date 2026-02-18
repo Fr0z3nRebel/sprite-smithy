@@ -1,7 +1,12 @@
-import { SpriteSheetMetadata } from '@/types/export';
+import {
+  SpriteSheetMetadata,
+  HashSpriteSheetMetadata,
+} from '@/types/export';
 import { ProcessingSettings } from '@/types/processing';
 import { VideoMetadata } from '@/types/video';
 import { SPRITE_SHEET_METADATA_VERSION, GENERATOR_NAME } from '@/utils/constants';
+
+const HASH_SPRITE_SHEET_VERSION = '1.0';
 
 /**
  * Generate metadata JSON for the sprite sheet
@@ -64,6 +69,62 @@ export function generateMetadata(
 }
 
 /**
+ * Generate standard hash sprite sheet metadata for PixiJS/Phaser.
+ * Keys are "frame_{index}.png"; each entry has frame, rotated, trimmed,
+ * spriteSourceSize, and sourceSize.
+ */
+export function generateHashSpriteSheetMetadata(params: {
+  frame_width: number;
+  frame_height: number;
+  columns: number;
+  total_frames: number;
+  output_image_name: string;
+  version?: string;
+}): string {
+  const {
+    frame_width,
+    frame_height,
+    columns,
+    total_frames,
+    output_image_name,
+    version = HASH_SPRITE_SHEET_VERSION,
+  } = params;
+
+  const rows = Math.ceil(total_frames / columns);
+  const totalWidth = columns * frame_width;
+  const totalHeight = rows * frame_height;
+
+  const frames: HashSpriteSheetMetadata['frames'] = {};
+
+  for (let index = 0; index < total_frames; index++) {
+    const col = index % columns;
+    const row = Math.floor(index / columns);
+    const x = col * frame_width;
+    const y = row * frame_height;
+
+    const key = `frame_${index}.png`;
+    frames[key] = {
+      frame: { x, y, w: frame_width, h: frame_height },
+      rotated: false,
+      trimmed: false,
+      spriteSourceSize: { x: 0, y: 0, w: frame_width, h: frame_height },
+      sourceSize: { w: frame_width, h: frame_height },
+    };
+  }
+
+  const metadata: HashSpriteSheetMetadata = {
+    frames,
+    meta: {
+      image: output_image_name,
+      size: { w: totalWidth, h: totalHeight },
+      version,
+    },
+  };
+
+  return JSON.stringify(metadata, null, 2);
+}
+
+/**
  * Generate a simple README for the export
  */
 export function generateReadme(
@@ -85,7 +146,8 @@ Generated: ${new Date().toLocaleString()}
 
 - sprite-sheet.png: Complete sprite sheet with all frames
 - frames/: Individual frame files
-- metadata.json: Processing settings and sprite sheet information
+- sprite-smithy.json: Sprite Smithy metadata (processing settings, reproducibility)
+- sprite-sheet.json: Hash-format metadata for PixiJS/Phaser (frame coordinates)
 
 ## Sprite Sheet Details
 
@@ -112,8 +174,10 @@ Generated: ${new Date().toLocaleString()}
 3. Set Hframes to ${spriteSheetDimensions.cols}
 4. Set Vframes to ${spriteSheetDimensions.rows}
 
-**Phaser:**
+**Phaser (with sprite-sheet.json):**
 \`\`\`javascript
+this.load.atlas('sprite', 'sprite-sheet.png', 'sprite-sheet.json');
+// Or grid-based without JSON:
 this.load.spritesheet('sprite', 'sprite-sheet.png', {
   frameWidth: ${frameSize},
   frameHeight: ${frameSize}

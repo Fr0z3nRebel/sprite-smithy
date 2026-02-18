@@ -5,7 +5,11 @@ import {
   canvasToBlob,
   getSpriteSheetDimensions,
 } from '@/lib/export/spriteSheet';
-import { generateMetadata, generateReadme } from '@/lib/export/metadataGenerator';
+import {
+  generateMetadata,
+  generateHashSpriteSheetMetadata,
+  generateReadme,
+} from '@/lib/export/metadataGenerator';
 
 export function useExport() {
   const [isExporting, setIsExporting] = useState(false);
@@ -66,6 +70,15 @@ export function useExport() {
         { cols: dimensions.cols, rows: dimensions.rows }
       );
 
+      const outputImageName = `sprite-sheet.${exportSettings.format}`;
+      const hashSpriteSheetJson = generateHashSpriteSheetMetadata({
+        frame_width: frameSize,
+        frame_height: frameSize,
+        columns: dimensions.cols,
+        total_frames: framesToExport.length,
+        output_image_name: outputImageName,
+      });
+
       const readmeText = generateReadme(framesToExport.length, frameSize, dimensions);
 
       setExportProgress(40);
@@ -80,7 +93,8 @@ export function useExport() {
         zip.file(`sprite-sheet.${exportSettings.format}`, spriteSheetBlob);
 
         if (exportSettings.includeMetadata) {
-          zip.file('metadata.json', metadataJson);
+          zip.file('sprite-smithy.json', metadataJson);
+          zip.file('sprite-sheet.json', hashSpriteSheetJson);
           zip.file('README.md', readmeText);
         }
 

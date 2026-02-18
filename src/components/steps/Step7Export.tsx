@@ -234,9 +234,9 @@ export default function Step7Export() {
       {/* Info Box */}
       <div className="p-4 bg-muted/50 rounded-lg">
         <p className="text-xs text-muted-foreground">
-          <strong>Tip:</strong> The metadata.json file contains all your
-          processing settings. You can use this to reproduce the same sprite
-          sheet in the future or share your settings with others.
+          <strong>Tip:</strong> sprite-smithy.json contains your processing
+          settings for reproducibility. sprite-sheet.json is hash-format
+          metadata for PixiJS/Phaser.
         </p>
       </div>
     </div>

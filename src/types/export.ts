@@ -40,3 +40,23 @@ export interface SpriteSheetMetadata {
     rows: number;
   };
 }
+
+/** PixiJS/Phaser hash format: frame key → frame data */
+export interface HashSpriteSheetFrame {
+  frame: { x: number; y: number; w: number; h: number };
+  rotated: boolean;
+  trimmed: boolean;
+  spriteSourceSize: { x: number; y: number; w: number; h: number };
+  sourceSize: { w: number; h: number };
+}
+
+export interface HashSpriteSheetMeta {
+  image: string;
+  size: { w: number; h: number };
+  version: string;
+}
+
+export interface HashSpriteSheetMetadata {
+  frames: Record<string, HashSpriteSheetFrame>;
+  meta: HashSpriteSheetMeta;
+}
