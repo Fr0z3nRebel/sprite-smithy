@@ -95,39 +95,76 @@ async function detectFPS(video: HTMLVideoElement): Promise<number> {
   return closestFPS;
 }
 
+/** Epsilon: treat as "already at time" if within ~one frame at 30fps */
+const SEEK_EPSILON = 0.5 / 30;
+
+function captureFrameFromVideo(video: HTMLVideoElement): ImageData {
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) {
+    throw new Error('Failed to get canvas context');
+  }
+  ctx.drawImage(video, 0, 0);
+  return ctx.getImageData(0, 0, canvas.width, canvas.height);
+}
+
 /**
- * Get frame at specific time
+ * Get frame at specific time. Resolves immediately if video is already at
+ * target time (onseeked may not fire in that case).
  */
 export function getFrameAtTime(
   video: HTMLVideoElement,
   time: number
 ): Promise<ImageData> {
-  return new Promise((resolve, reject) => {
-    video.currentTime = time;
-
-    video.onseeked = () => {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        if (!ctx) {
-          reject(new Error('Failed to get canvas context'));
-          return;
+  if (Math.abs(video.currentTime - time) < SEEK_EPSILON) {
+    return new Promise<ImageData>((resolve, reject) => {
+      requestAnimationFrame(() => {
+        try {
+          resolve(captureFrameFromVideo(video));
+        } catch (error) {
+          reject(error);
         }
+      });
+    });
+  }
 
-        ctx.drawImage(video, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-        resolve(imageData);
-      } catch (error) {
-        reject(error);
-      }
+  return new Promise((resolve, reject) => {
+    const onSeeked = () => {
+      video.removeEventListener('seeked', onSeeked);
+      video.removeEventListener('error', onError);
+      requestAnimationFrame(() => {
+        try {
+          resolve(captureFrameFromVideo(video));
+        } catch (error) {
+          reject(error);
+        }
+      });
     };
 
-    video.onerror = () => {
+    const onError = () => {
+      video.removeEventListener('seeked', onSeeked);
+      video.removeEventListener('error', onError);
       reject(new Error('Failed to seek to time'));
     };
+
+    video.addEventListener('seeked', onSeeked);
+    video.addEventListener('error', onError);
+    video.currentTime = time;
   });
+}
+
+/**
+ * Get frame at a specific frame index. Uses time = frameIndex / fps for
+ * consistent, deterministic mapping. Prefer this when comparing frames
+ * so the same (video, frameIndex, fps) always yields the same time.
+ */
+export function getFrameAtFrameIndex(
+  video: HTMLVideoElement,
+  frameIndex: number,
+  fps: number
+): Promise<ImageData> {
+  const time = frameIndex / fps;
+  return getFrameAtTime(video, time);
 }

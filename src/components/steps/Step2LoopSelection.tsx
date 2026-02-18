@@ -4,12 +4,17 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { useStore } from '@/store';
 import Slider from '@/components/ui/Slider';
 import Button from '@/components/ui/Button';
+import { getFrameAtFrameIndex } from '@/lib/video/videoInfo';
+import { compareFrames } from '@/lib/video/frameComparison';
+import { Search } from 'lucide-react';
 
 export default function Step2LoopSelection() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentFrame, setCurrentFrame] = useState(0);
   const [previewFps, setPreviewFps] = useState<number | null>(null);
+  const [isFindingEndFrame, setIsFindingEndFrame] = useState(false);
+  const [findEndMessage, setFindEndMessage] = useState<string | null>(null);
   const animationRef = useRef<number | null>(null);
   const frameSkipTimerRef = useRef<number | null>(null);
   const playPromiseRef = useRef<Promise<void> | null>(null);
@@ -70,7 +75,6 @@ export default function Step2LoopSelection() {
     const startTime = loop.startFrame / fps;
     const endTime = (loop.endFrame + 1) / fps;
 
-    // Normal playback when frameSkip is 1
     // Loop back to start if we've passed the end
     if (currentTime >= endTime) {
       videoEl.currentTime = startTime;
@@ -79,16 +83,11 @@ export default function Step2LoopSelection() {
 
     // Ensure video keeps playing if it should be playing (only in normal playback mode)
     if (isPlaying && loop.frameSkip === 1 && videoEl.paused && videoEl.readyState >= 2) {
-      // Only call play if there's no pending play operation
       if (!playPromiseRef.current) {
         const playPromise = videoEl.play();
         playPromiseRef.current = playPromise;
-        playPromise.catch(() => {
-          // Ignore autoplay errors
-        }).finally(() => {
-          if (playPromiseRef.current === playPromise) {
-            playPromiseRef.current = null;
-          }
+        playPromise.catch(() => {}).finally(() => {
+          if (playPromiseRef.current === playPromise) playPromiseRef.current = null;
         });
       }
     }
@@ -293,7 +292,12 @@ export default function Step2LoopSelection() {
     if (!video || !isPlaying || loop.frameSkip > 1) return;
 
     const checkPlaying = () => {
-      if (isPlaying && loop.frameSkip === 1 && video.paused && video.readyState >= 2) {
+      if (
+        isPlaying &&
+        loop.frameSkip === 1 &&
+        video.paused &&
+        video.readyState >= 2
+      ) {
         // Only call play if there's no pending play operation
         if (!playPromiseRef.current) {
           const playPromise = video.play();
@@ -403,9 +407,110 @@ export default function Step2LoopSelection() {
     setPreviewFps(value);
   };
 
-  // Reset preview FPS when video changes
+  const handleFindEndFrame = useCallback(async () => {
+    const videoEl = videoRef.current;
+    if (!videoEl || !video.metadata) return;
+
+    setFindEndMessage(null);
+
+    const minGap = 6;
+    if (loop.startFrame + minGap > totalFrames - 1) {
+      setFindEndMessage('Need at least 6 frames after start');
+      return;
+    }
+
+    setIsFindingEndFrame(true);
+    const wasPlaying = !videoEl.paused;
+    try {
+      videoEl.pause();
+
+      const reference = await getFrameAtFrameIndex(
+        videoEl,
+        loop.startFrame,
+        fps
+      );
+
+      const firstCandidate = loop.startFrame + minGap;
+      const lastCandidate = totalFrames - 1;
+      const compareOpts = { useLuminance: true };
+      const goodEnoughThreshold = 2;
+
+      const search = async (
+        from: number,
+        to: number,
+        step: number,
+        maxSize: number,
+        earlyExit: boolean
+      ): Promise<{ bestFrame: number; bestDiff: number }> => {
+        let bestFrame = from;
+        let bestDiff = Infinity;
+        const opts = { ...compareOpts, maxSize };
+        const BATCH_SIZE = 15;
+        let count = 0;
+        for (let i = from; i <= to; i += step) {
+          const frame = await getFrameAtFrameIndex(videoEl, i, fps);
+          const diff = compareFrames(reference, frame, opts);
+          if (diff === 0) {
+            return { bestFrame: i, bestDiff: 0 };
+          }
+          if (diff < bestDiff) {
+            bestDiff = diff;
+            bestFrame = i;
+          }
+          if (earlyExit && diff < goodEnoughThreshold) break;
+          count++;
+          if (count % BATCH_SIZE === 0) {
+            await new Promise((r) => setTimeout(r, 0));
+          }
+        }
+        return { bestFrame, bestDiff };
+      };
+
+      const coarseStep = Math.max(1, Math.floor((lastCandidate - firstCandidate) / 100));
+      const { bestFrame: coarseBest, bestDiff } = await search(
+        firstCandidate,
+        lastCandidate,
+        coarseStep,
+        32,
+        true
+      );
+
+      if (bestDiff === 0) {
+        const endFrame = Math.max(loop.startFrame + minGap, coarseBest - 1);
+        setLoopSelection(loop.startFrame, endFrame);
+        videoEl.currentTime = endFrame / fps;
+        setCurrentFrame(endFrame);
+      } else {
+        const margin = Math.max(coarseStep * 2, 10);
+        const fineFrom = Math.max(firstCandidate, coarseBest - margin);
+        const fineTo = Math.min(lastCandidate, coarseBest + margin);
+        const { bestFrame: bestFrameFine } = await search(
+          fineFrom,
+          fineTo,
+          1,
+          64,
+          false
+        );
+        const endFrame = Math.max(
+          loop.startFrame + minGap,
+          bestFrameFine - 1
+        );
+        setLoopSelection(loop.startFrame, endFrame);
+        videoEl.currentTime = endFrame / fps;
+        setCurrentFrame(endFrame);
+      }
+    } finally {
+      if (wasPlaying) {
+        videoEl.play().catch(() => {});
+      }
+      setIsFindingEndFrame(false);
+    }
+  }, [fps, loop.startFrame, totalFrames, setLoopSelection]);
+
+  // Reset preview FPS and find-end message when video changes
   useEffect(() => {
     setPreviewFps(null);
+    setFindEndMessage(null);
   }, [video.url]);
 
   return (
@@ -482,15 +587,41 @@ export default function Step2LoopSelection() {
           valueFormatter={(v) => `Frame ${v}`}
         />
 
-        <Slider
-          label="End Frame"
-          value={loop.endFrame}
-          min={0}
-          max={totalFrames - 1}
-          step={1}
-          onChange={handleEndChange}
-          valueFormatter={(v) => `Frame ${v}`}
-        />
+        <div className="flex flex-col gap-2">
+          <Slider
+            label={
+              <span className="inline-flex items-center gap-1.5">
+                End Frame
+                <button
+                  type="button"
+                  onClick={handleFindEndFrame}
+                  disabled={
+                    isFindingEndFrame ||
+                    loop.startFrame + 6 > totalFrames - 1
+                  }
+                  aria-label="Find end frame that matches start frame"
+                  aria-busy={isFindingEndFrame}
+                  className="inline-flex items-center justify-center rounded p-0.5 text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <Search
+                    className="h-[1em] w-[1em] text-sm"
+                    aria-hidden
+                  />
+                </button>
+              </span>
+            }
+            value={loop.endFrame}
+            min={0}
+            max={totalFrames - 1}
+            step={1}
+            onChange={handleEndChange}
+            valueFormatter={(v) => `Frame ${v}`}
+            disabled={isFindingEndFrame}
+          />
+          {findEndMessage && (
+            <p className="text-sm text-muted-foreground">{findEndMessage}</p>
+          )}
+        </div>
 
         <Slider
           label="Frame Skip"

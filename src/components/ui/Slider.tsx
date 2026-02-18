@@ -1,7 +1,7 @@
 import { ChangeEvent } from 'react';
 
 interface SliderProps {
-  label: string;
+  label: React.ReactNode;
   value: number;
   min: number;
   max: number;
