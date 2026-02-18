@@ -51,16 +51,23 @@ export default function Step2LoopSelection() {
       const nextValidTime = nextValidFrame / fps;
       videoEl.currentTime = nextValidTime;
       setCurrentFrame(nextValidFrame);
-      
-      // Schedule next frame advance using preview FPS for timing
-      const frameDuration = (1 / displayFps) * loop.frameSkip;
-      frameSkipTimerRef.current = window.setTimeout(advanceFrameSkip, frameDuration * 1000);
+
+      // Time per exported frame at preview FPS (each displayed frame = 1/displayFps s)
+      const timePerExportedFrame = 1 / displayFps;
+      frameSkipTimerRef.current = window.setTimeout(
+        advanceFrameSkip,
+        timePerExportedFrame * 1000
+      );
     } else {
       // Loop back to start
       const startTime = loop.startFrame / fps;
       videoEl.currentTime = startTime;
       setCurrentFrame(loop.startFrame);
-      frameSkipTimerRef.current = window.setTimeout(advanceFrameSkip, (1 / displayFps) * 1000);
+      const timePerExportedFrame = 1 / displayFps;
+      frameSkipTimerRef.current = window.setTimeout(
+        advanceFrameSkip,
+        timePerExportedFrame * 1000
+      );
     }
   }, [fps, displayFps, loop.startFrame, loop.endFrame, loop.frameSkip, isPlaying, video.metadata]);
 
@@ -144,10 +151,13 @@ export default function Step2LoopSelection() {
           const startTime = startFrame / fps;
           videoEl.currentTime = startTime;
           setCurrentFrame(startFrame);
-          
-          // Start frame-by-frame advance using preview FPS for timing
-          const frameDuration = (1 / displayFps) * loop.frameSkip;
-          frameSkipTimerRef.current = window.setTimeout(advanceFrameSkip, frameDuration * 1000);
+
+          // Time per exported frame at preview FPS
+          const timePerExportedFrame = 1 / displayFps;
+          frameSkipTimerRef.current = window.setTimeout(
+            advanceFrameSkip,
+            timePerExportedFrame * 1000
+          );
         }
       } else {
         // Normal continuous playback
