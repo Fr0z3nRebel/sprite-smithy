@@ -7,10 +7,12 @@ export interface ExportSlice {
   resetExportSettings: () => void;
 }
 
-const initialExportSettings: ExportSettings = {
+export const initialExportSettings: ExportSettings = {
   includeSpriteSheet: true,
   includeFrames: false,
   includeMetadata: true,
+  includeHashSpriteSheet: true,
+  includeGif: false,
   format: 'png',
 };
 

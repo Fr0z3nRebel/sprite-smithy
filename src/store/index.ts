@@ -3,7 +3,11 @@ import { persist } from 'zustand/middleware';
 import { VideoSlice, createVideoSlice } from './videoSlice';
 import { FramesSlice, createFramesSlice } from './framesSlice';
 import { SettingsSlice, createSettingsSlice } from './settingsSlice';
-import { ExportSlice, createExportSlice } from './exportSlice';
+import {
+  ExportSlice,
+  createExportSlice,
+  initialExportSettings,
+} from './exportSlice';
 
 // UI state slice
 export interface UIState {
@@ -67,11 +71,27 @@ export const useStore = create<AppStore>()(
     }),
     {
       name: 'sprite-smithy-storage',
-      // Only persist certain parts of the state
       partialize: (state) => ({
         settings: state.settings,
         exportSettings: state.exportSettings,
       }),
+      merge: (persistedState, currentState): AppStore => {
+        const persisted = persistedState as
+          | { settings?: AppStore['settings']; exportSettings?: Partial<typeof initialExportSettings> }
+          | undefined;
+        if (!persisted) return currentState;
+        const merged: AppStore = {
+          ...currentState,
+          ...(persisted.settings !== undefined && { settings: persisted.settings }),
+          ...(persisted.exportSettings !== undefined && {
+            exportSettings: {
+              ...initialExportSettings,
+              ...persisted.exportSettings,
+            },
+          }),
+        };
+        return merged;
+      },
     }
   )
 );

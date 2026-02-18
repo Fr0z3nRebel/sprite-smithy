@@ -4,12 +4,15 @@ import { VideoState, LoopSelection } from '@/types/video';
 export interface VideoSlice {
   video: VideoState;
   loop: LoopSelection;
+  /** FPS chosen in Step 2 (Preview FPS); used for animated GIF export when set. */
+  previewFps: number | null;
   setVideoFile: (file: File) => void;
   setVideoUrl: (url: string) => void;
   setVideoMetadata: (metadata: VideoState['metadata']) => void;
   setLoopSelection: (start: number, end: number) => void;
   setFrameSkip: (skip: number) => void;
   setSelectedFrames: (frames: number[]) => void;
+  setPreviewFps: (fps: number | null) => void;
   resetVideo: () => void;
 }
 
@@ -29,6 +32,7 @@ const initialLoopSelection: LoopSelection = {
 export const createVideoSlice: StateCreator<VideoSlice> = (set) => ({
   video: initialVideoState,
   loop: initialLoopSelection,
+  previewFps: null,
 
   setVideoFile: (file) =>
     set((state) => ({
@@ -64,9 +68,12 @@ export const createVideoSlice: StateCreator<VideoSlice> = (set) => ({
       loop: { ...state.loop, selectedFrames: frames },
     })),
 
+  setPreviewFps: (fps) => set({ previewFps: fps }),
+
   resetVideo: () =>
     set({
       video: initialVideoState,
       loop: initialLoopSelection,
+      previewFps: null,
     }),
 });

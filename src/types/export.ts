@@ -2,6 +2,9 @@ export interface ExportSettings {
   includeSpriteSheet: boolean;
   includeFrames: boolean;
   includeMetadata: boolean;
+  /** When true (default), include sprite-sheet.json (PixiJS/Phaser hash format) with metadata. */
+  includeHashSpriteSheet: boolean;
+  includeGif: boolean;
   format: 'png' | 'webp';
 }
 

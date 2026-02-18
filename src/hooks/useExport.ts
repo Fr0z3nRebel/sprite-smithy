@@ -10,6 +10,7 @@ import {
   generateHashSpriteSheetMetadata,
   generateReadme,
 } from '@/lib/export/metadataGenerator';
+import { encodeAnimatedGif } from '@/lib/export/animatedGif';
 
 export function useExport() {
   const [isExporting, setIsExporting] = useState(false);
@@ -20,6 +21,7 @@ export function useExport() {
   const settings = useStore((state) => state.settings);
   const exportSettings = useStore((state) => state.exportSettings);
   const video = useStore((state) => state.video);
+  const previewFps = useStore((state) => state.previewFps);
   const setProcessing = useStore((state) => state.setProcessing);
   const setProgress = useStore((state) => state.setProgress);
   const setError = useStore((state) => state.setError);
@@ -70,37 +72,66 @@ export function useExport() {
         { cols: dimensions.cols, rows: dimensions.rows }
       );
 
-      const outputImageName = `sprite-sheet.${exportSettings.format}`;
-      const hashSpriteSheetJson = generateHashSpriteSheetMetadata({
-        frame_width: frameSize,
-        frame_height: frameSize,
-        columns: dimensions.cols,
-        total_frames: framesToExport.length,
-        output_image_name: outputImageName,
-      });
+      let hashSpriteSheetJson: string | null = null;
+      if (exportSettings.includeMetadata && exportSettings.includeHashSpriteSheet) {
+        const outputImageName = `sprite-sheet.${exportSettings.format}`;
+        hashSpriteSheetJson = generateHashSpriteSheetMetadata({
+          frame_width: frameSize,
+          frame_height: frameSize,
+          columns: dimensions.cols,
+          total_frames: framesToExport.length,
+          output_image_name: outputImageName,
+        });
+      }
 
       const readmeText = generateReadme(framesToExport.length, frameSize, dimensions);
 
       setExportProgress(40);
       setProgress(40);
 
+      let gifBlob: Blob | null = null;
+      if (exportSettings.includeGif) {
+        const gifFps = previewFps ?? video.metadata?.fps ?? 10;
+        gifBlob = await encodeAnimatedGif(
+          framesToExport,
+          gifFps,
+          (p) => {
+            setExportProgress(40 + Math.round(p * 0.2));
+            setProgress(40 + Math.round(p * 0.2));
+          }
+        );
+      }
+
+      const useZip =
+        exportSettings.includeFrames ||
+        exportSettings.includeMetadata ||
+        exportSettings.includeGif;
+
       let exportBlob: Blob;
 
-      if (exportSettings.includeFrames || exportSettings.includeMetadata) {
+      if (useZip) {
         const JSZip = (await import('jszip')).default;
         const zip = new JSZip();
 
         zip.file(`sprite-sheet.${exportSettings.format}`, spriteSheetBlob);
 
+        if (exportSettings.includeGif && gifBlob) {
+          zip.file('animated.gif', gifBlob);
+        }
+
         if (exportSettings.includeMetadata) {
           zip.file('sprite-smithy.json', metadataJson);
-          zip.file('sprite-sheet.json', hashSpriteSheetJson);
+          if (hashSpriteSheetJson) {
+            zip.file('sprite-sheet.json', hashSpriteSheetJson);
+          }
           zip.file('README.md', readmeText);
         }
 
         if (exportSettings.includeFrames) {
           const framesFolder = zip.folder('frames');
           if (framesFolder) {
+            const progressStart = exportSettings.includeGif ? 60 : 60;
+            const progressSpan = 40;
             for (let i = 0; i < framesToExport.length; i++) {
               const frame = framesToExport[i];
 
@@ -128,7 +159,9 @@ export function useExport() {
               const filename = `frame-${(i + 1).toString().padStart(4, '0')}.${exportSettings.format}`;
               framesFolder.file(filename, blob);
 
-              const progress = Math.round(60 + ((i + 1) / framesToExport.length) * 40);
+              const progress = Math.round(
+                progressStart + ((i + 1) / framesToExport.length) * progressSpan
+              );
               setExportProgress(progress);
               setProgress(progress);
             }
@@ -147,9 +180,12 @@ export function useExport() {
       const link = document.createElement('a');
       link.href = url;
 
-      const filename = exportSettings.includeFrames || exportSettings.includeMetadata
-        ? 'sprite-smithy-export.zip'
-        : `sprite-sheet.${exportSettings.format}`;
+      const filename =
+        exportSettings.includeFrames ||
+        exportSettings.includeMetadata ||
+        exportSettings.includeGif
+          ? 'sprite-smithy-export.zip'
+          : `sprite-sheet.${exportSettings.format}`;
 
       link.download = filename;
       document.body.appendChild(link);
@@ -176,6 +212,7 @@ export function useExport() {
     settings,
     exportSettings,
     video.metadata,
+    previewFps,
     setProcessing,
     setProgress,
     setError,

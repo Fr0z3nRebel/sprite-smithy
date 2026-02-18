@@ -12,7 +12,6 @@ export default function Step2LoopSelection() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentFrame, setCurrentFrame] = useState(0);
-  const [previewFps, setPreviewFps] = useState<number | null>(null);
   const [isFindingEndFrame, setIsFindingEndFrame] = useState(false);
   const [findEndMessage, setFindEndMessage] = useState<string | null>(null);
   const animationRef = useRef<number | null>(null);
@@ -21,8 +20,10 @@ export default function Step2LoopSelection() {
 
   const video = useStore((state) => state.video);
   const loop = useStore((state) => state.loop);
+  const previewFps = useStore((state) => state.previewFps);
   const setLoopSelection = useStore((state) => state.setLoopSelection);
   const setFrameSkip = useStore((state) => state.setFrameSkip);
+  const setPreviewFps = useStore((state) => state.setPreviewFps);
   const setCurrentStep = useStore((state) => state.setCurrentStep);
 
   const fps = video.metadata?.fps || 30;
