@@ -46,6 +46,12 @@ export default function Header() {
             >
               About
             </Link>
+            <Link
+              href="/guide"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition"
+            >
+              Guide
+            </Link>
           </nav>
 
           {/* CTA */}
@@ -96,6 +102,13 @@ export default function Header() {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         About
+                      </Link>
+                      <Link
+                        href="/guide"
+                        className="block px-4 py-2 text-sm hover:bg-muted/50 transition"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Guide
                       </Link>
                       <div className="border-t border-border py-1">
                         <Link
